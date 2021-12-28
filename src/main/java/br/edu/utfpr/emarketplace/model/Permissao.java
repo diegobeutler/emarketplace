@@ -1,6 +1,7 @@
 package br.edu.utfpr.emarketplace.model;
 
 import lombok.*;
+import org.hibernate.envers.Audited;
 import org.springframework.security.core.GrantedAuthority;
 
 import javax.persistence.*;
@@ -12,15 +13,18 @@ import java.io.Serializable;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
+@Audited
+@Table(name = "PERMISSAO")
 public class Permissao implements Serializable,
         GrantedAuthority {
     private static final long serialVersionUID = 1L;
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer id;
+    @Column(name = "ID_PERMISSAO")
+    private Long id;
 
-    @Column(length = 20, nullable = false)
+    @Column(name = "NOME", length = 20, nullable = false)
     private String nome;
 
     @Override
