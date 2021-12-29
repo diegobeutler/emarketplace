@@ -62,7 +62,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
     }
 
     @Override
-    public Usuario cadastrarUsuario(Usuario usuario) throws Exception {
+    public Usuario salvar(Usuario usuario) throws Exception {
         if (usuario.getId() == null) {
             usuario.setPassword(encoder.encode(usuario.getPassword()));
             usuario.setPermissoes(Set.of(permissaoRepository.findByNome("ROLE_USER")));
@@ -71,9 +71,10 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
     }
 
     @Override
-    public void deletarUsuario(Long id) {
+    public void excluir(Long id) {
         delete(id);
     }
+
 
     @Override
     public List<Usuario> listarTodos() {

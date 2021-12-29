@@ -2,9 +2,12 @@ package br.edu.utfpr.emarketplace.model;
 
 import br.edu.utfpr.emarketplace.enumeration.Operacao;
 import br.edu.utfpr.emarketplace.enumeration.Status;
+import com.fasterxml.jackson.databind.JsonNode;
+import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
 import lombok.*;
+import org.hibernate.annotations.Type;
+import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
-import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -20,6 +23,10 @@ import java.time.LocalDate;
 @Builder
 @Audited
 @Table(name = "ANUNCIO")
+@TypeDef(
+        name = "jsonb-node",
+        typeClass = JsonNodeBinaryType.class
+)
 public class Anuncio {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -33,8 +40,9 @@ public class Anuncio {
     @Column(name = "DESCRICAO", length = 500)
     private String descricao;
 
-    @Column(name = "CARACTERISTICAS", nullable = false)
-    private String caracteristicas;// json
+    @Type(type = "jsonb-node" )
+    @Column(name = "CARACTERISTICAS", nullable = false, columnDefinition = "jsonb")
+    private JsonNode caracteristicas;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "OPERACAO", length = 10, nullable = false)

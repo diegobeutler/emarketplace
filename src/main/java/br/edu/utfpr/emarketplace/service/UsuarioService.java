@@ -8,9 +8,9 @@ import java.util.List;
 public interface UsuarioService extends CrudService<Usuario, Long> {
     Usuario getUsuarioLogado();
 
-    Usuario cadastrarUsuario(Usuario usuario) throws Exception;
+    Usuario salvar(Usuario usuario) throws Exception;
 
-    void deletarUsuario(Long id);
+    void excluir(Long id);
 
     List<Usuario> listarTodos();
 

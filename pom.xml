@@ -77,10 +77,13 @@
 			<artifactId>java-jwt</artifactId>
 			<version>3.18.2</version>
 		</dependency>
+		<dependency>
+			<groupId>com.vladmihalcea</groupId>
+			<artifactId>hibernate-types-52</artifactId>
+			<version>2.14.0</version>
+		</dependency>
 
-
-
-<!--		Atualmente tem um bug se usado uma versão do spring 2.6.x par usar teria que deixar o spring em uma versão mais antiga-->
+		<!--		Atualmente tem um bug se usado uma versão do spring 2.6.x par usar teria que deixar o spring em uma versão mais antiga-->
 <!--		<dependency>-->
 <!--			<groupId>io.springfox</groupId>-->
 <!--			<artifactId>springfox-swagger2</artifactId>-->
