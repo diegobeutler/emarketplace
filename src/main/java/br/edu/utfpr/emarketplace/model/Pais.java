@@ -1,7 +1,6 @@
 package br.edu.utfpr.emarketplace.model;
 
 import lombok.*;
-import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;
@@ -26,7 +25,6 @@ public class Pais {
     @Column(name = "NOME", length = 80)
     @Max(80)
     private String nome;
-
 
 
 }

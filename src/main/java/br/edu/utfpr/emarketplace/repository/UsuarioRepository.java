@@ -1,7 +1,6 @@
 package br.edu.utfpr.emarketplace.repository;
 
 
-
 import br.edu.utfpr.emarketplace.model.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 

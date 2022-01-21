@@ -17,7 +17,9 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 
 import static org.springframework.security.config.http.SessionCreationPolicy.STATELESS;
 
-@Configuration @EnableWebSecurity @RequiredArgsConstructor
+@Configuration
+@EnableWebSecurity
+@RequiredArgsConstructor
 public class SecurityConfig extends WebSecurityConfigurerAdapter {
     private final UserDetailsService userDetailsService;
     private final BCryptPasswordEncoder bCryptPasswordEncoder;
@@ -35,17 +37,18 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
         http.csrf().disable();
         http.sessionManagement().sessionCreationPolicy(STATELESS);
         http.authorizeRequests()
-                .antMatchers(HttpMethod.POST,"/categoria/**").hasAnyAuthority( "ROLE_ADMIN")
-                .antMatchers(HttpMethod.PUT,"/categoria/**").hasAnyAuthority( "ROLE_ADMIN")
-                .antMatchers(HttpMethod.DELETE,"/categoria/**").hasAnyAuthority( "ROLE_ADMIN")
-                .antMatchers(HttpMethod.GET,"/categoria/**").authenticated()                .antMatchers(HttpMethod.POST,"/categoria/**").hasAnyAuthority( "ROLE_ADMIN")
-                .antMatchers(HttpMethod.PUT,"/artigo/**").hasAnyAuthority( "ROLE_USER")
-                .antMatchers(HttpMethod.POST,"/artigo/**").hasAnyAuthority( "ROLE_USER")
-                .antMatchers(HttpMethod.DELETE,"/artigo/**").hasAnyAuthority( "ROLE_USER")
-                .antMatchers(HttpMethod.GET,"/artigo/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/categoria/**").hasAnyAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.PUT, "/categoria/**").hasAnyAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.DELETE, "/categoria/**").hasAnyAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.GET, "/categoria/**").authenticated().antMatchers(HttpMethod.POST, "/categoria/**").hasAnyAuthority("ROLE_ADMIN")
+                .antMatchers(HttpMethod.PUT, "/artigo/**").hasAnyAuthority("ROLE_USER")
+                .antMatchers(HttpMethod.POST, "/artigo/**").hasAnyAuthority("ROLE_USER")
+                .antMatchers(HttpMethod.DELETE, "/artigo/**").hasAnyAuthority("ROLE_USER")
+                .antMatchers(HttpMethod.GET, "/artigo/**").permitAll()
                 .antMatchers("/usuario/**").permitAll()
                 .antMatchers("/login").permitAll()
-                .anyRequest().authenticated();
+                .anyRequest().permitAll();
+//        .anyRequest().authenticated();
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

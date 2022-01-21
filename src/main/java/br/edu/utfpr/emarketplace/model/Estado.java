@@ -1,7 +1,6 @@
 package br.edu.utfpr.emarketplace.model;
 
 import lombok.*;
-import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
 import javax.validation.constraints.Max;

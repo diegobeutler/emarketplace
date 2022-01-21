@@ -6,6 +6,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.io.IOException;
 import java.io.Serializable;
 import java.util.List;
 
@@ -44,13 +45,25 @@ public abstract class CrudServiceImpl<T, ID extends Serializable> implements Cru
         return getRepository().saveAndFlush(entity);
     }
 
-    public abstract void valid(T entity) throws Exception;
+    public void valid(T entity) throws Exception {
+
+    }
 
     @Override
     @Transactional
     public <S extends T> S save(S entity) throws Exception {
         valid(entity);
-        return getRepository().save(entity);
+        preSave(entity);
+        var retorno = getRepository().save(entity);
+        postSave(retorno);
+        return retorno ;
+    }
+
+    public void preSave(T entity) throws IOException {
+    }
+
+
+    public void postSave(T entity) throws IOException {
     }
 
     @Override

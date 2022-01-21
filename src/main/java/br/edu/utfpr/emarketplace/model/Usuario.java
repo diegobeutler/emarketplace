@@ -6,9 +6,7 @@ import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
-import java.awt.*;
 import java.io.Serializable;
 import java.util.HashSet;
 import java.util.Set;
@@ -46,7 +44,7 @@ public class Usuario implements Serializable {
     private String imagem;
 
     @Column(name = "USERNAME", length = 100, nullable = false)// todo pode dar problema
-    @Max(100)
+//    @Max(100)
     private String username;
 
     @Column(name = "PASSWORD", nullable = false)
@@ -60,4 +58,11 @@ public class Usuario implements Serializable {
     @JoinColumn(name = "ID_CIDADE")
     @ManyToOne
     private Cidade cidade;
+
+    @Transient
+    private transient boolean deleteImage;
+
+   public boolean isUpdateImage() {
+        return imagem.startsWith("data");
+    }
 }

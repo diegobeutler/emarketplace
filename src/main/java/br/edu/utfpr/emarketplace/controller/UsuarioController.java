@@ -30,10 +30,10 @@ public class UsuarioController {
         return usuarioService.listarTodos();
     }
 
-//    @GetMapping("{id}")
-//    private Usuario findById(@PathVariable("id") Long id) {
-//        return usuarioService.findById(id);
-//    }
+    @GetMapping("{id}")
+    private Usuario findById(@PathVariable("id") Long id) {
+        return usuarioService.findById(id);
+    }
 
     @GetMapping("logado")
     private Usuario findUsuarioLogado() {

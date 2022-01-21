@@ -27,7 +27,7 @@ public class SimpleCorsFilter implements Filter {
                 + "User-Agent, If-Modified-Since, Content-Range, Range");
         response.setHeader("Access-Control-Max-Age", "3600");
 
-        if("OPTIONS".equalsIgnoreCase(((HttpServletRequest) req).getMethod())){
+        if ("OPTIONS".equalsIgnoreCase(((HttpServletRequest) req).getMethod())) {
             response.setStatus(HttpServletResponse.SC_OK);
         } else {
             filterChain.doFilter(req, res);

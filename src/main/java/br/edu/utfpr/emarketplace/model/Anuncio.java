@@ -34,13 +34,14 @@ public class Anuncio {
     private Long id;
 
     @Column(name = "TITULO", nullable = false)
-    @Min(3) @Max(100)
+    @Min(3)
+    @Max(100)
     private String titulo;
 
     @Column(name = "DESCRICAO", length = 500)
     private String descricao;
 
-    @Type(type = "jsonb-node" )
+    @Type(type = "jsonb-node")
     @Column(name = "CARACTERISTICAS", nullable = false, columnDefinition = "jsonb")
     private JsonNode caracteristicas;
 
@@ -79,14 +80,6 @@ public class Anuncio {
     @JoinColumn(name = "ID_CATEGORIA")
     @ManyToOne(optional = false)
     private Categoria categoria;
-
-
-
-
-
-
-
-
 
 
 }

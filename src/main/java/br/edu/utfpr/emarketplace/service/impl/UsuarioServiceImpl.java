@@ -5,6 +5,7 @@ import br.edu.utfpr.emarketplace.exception.UsuarioJaExisteException;
 import br.edu.utfpr.emarketplace.model.Usuario;
 import br.edu.utfpr.emarketplace.repository.PermissaoRepository;
 import br.edu.utfpr.emarketplace.repository.UsuarioRepository;
+import br.edu.utfpr.emarketplace.service.AmazonS3Bucket.AmazonS3BucketServiceImpl;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,7 +17,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
+import javax.imageio.ImageIO;
+import java.awt.image.BufferedImage;
+import java.io.ByteArrayInputStream;
+import java.io.File;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
@@ -33,6 +40,10 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
 
     private final PermissaoRepository permissaoRepository;
 
+    private final AmazonS3BucketServiceImpl amazonS3BucketService;
+
+    private byte[] imagedata;
+
 
     @Override
     public JpaRepository<Usuario, Long> getRepository() {
@@ -41,7 +52,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
 
     @Override
     public void valid(Usuario entity) throws UsuarioJaExisteException {
-        if(entity.getId() == null)
+        if (entity.getId() == null)
             if (usuarioRepository.findUsuarioByUsername(entity.getUsername()).isPresent())
                 throw new UsuarioJaExisteException("Usuario " + entity.getUsername() + " já existe");
 
@@ -68,6 +79,29 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
             usuario.setPermissoes(Set.of(permissaoRepository.findByNome("ROLE_USER")));
         }
         return save(usuario);
+    }
+
+    @Override
+    public void preSave(Usuario usuario){
+        if (usuario.isUpdateImage()) {
+            String str = usuario.getImagem();
+            imagedata = java.util.Base64.getDecoder().decode(str.substring(str.indexOf(",") + 1));
+            usuario.setImagem(null);
+        } else if(usuario.isDeleteImage()){
+            amazonS3BucketService.deleteFileFromBucket(usuario.getId() +".png");
+        }
+    }
+
+    @Override
+    @Transactional(rollbackFor = Exception.class)
+    public void postSave(Usuario usuario) throws IOException {
+        if (imagedata!=null) {
+            File file = new File(usuario.getId() +".png");
+            BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imagedata));
+            ImageIO.write(bufferedImage, "png", new File(usuario.getId() +".png"));
+            usuario.setImagem(amazonS3BucketService.uploadFile(file));
+            imagedata = null;
+        }
     }
 
     @Override
