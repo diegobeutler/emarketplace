@@ -1,4 +1,4 @@
-package br.edu.utfpr.emarketplace.service.AmazonS3Bucket;
+package br.edu.utfpr.emarketplace.service.amazonS3Bucket;
 
 import com.amazonaws.auth.AWSCredentials;
 import com.amazonaws.auth.AWSStaticCredentialsProvider;

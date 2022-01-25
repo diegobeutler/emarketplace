@@ -2,6 +2,9 @@ package br.edu.utfpr.emarketplace.controller;
 
 
 import br.edu.utfpr.emarketplace.model.Usuario;
+import br.edu.utfpr.emarketplace.resetPassword.GenericResponse;
+import br.edu.utfpr.emarketplace.resetPassword.dto.PasswordDto;
+import br.edu.utfpr.emarketplace.service.PasswordResetTokenService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +16,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class UsuarioController {
     private final UsuarioService usuarioService;
+    private final PasswordResetTokenService passwordResetTokenService;
 
 
     @PostMapping
@@ -38,5 +42,17 @@ public class UsuarioController {
     @GetMapping("logado")
     private Usuario findUsuarioLogado() {
         return usuarioService.getUsuarioLogado();
+    }
+
+    @PostMapping("resetPassword")
+    public GenericResponse enviarEmailResetPassword(@RequestBody String username){
+        passwordResetTokenService.enviarEmailResetPassword(username);
+        return new GenericResponse("E-mail enviado com sucesseo");
+    }
+
+    @PostMapping("updatePassword")
+    public GenericResponse updatePassword(@RequestBody PasswordDto passwordDto) throws Exception {
+        passwordResetTokenService.updatePassword(passwordDto);
+        return new GenericResponse("Senha Atualizada com sucesso");
     }
 }

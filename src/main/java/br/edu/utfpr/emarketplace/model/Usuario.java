@@ -62,6 +62,9 @@ public class Usuario implements Serializable {
     @Transient
     private transient boolean deleteImage;
 
+    @Transient
+    private transient boolean ehInstituicao;
+
    public boolean isUpdateImage() {
         return imagem.startsWith("data");
     }

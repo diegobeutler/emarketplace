@@ -14,5 +14,7 @@ public interface UsuarioService extends CrudService<Usuario, Long> {
 
     List<Usuario> listarTodos();
 
+    void changeUserPassword(Usuario usuario, String newPassword) throws Exception;
+
 
 }

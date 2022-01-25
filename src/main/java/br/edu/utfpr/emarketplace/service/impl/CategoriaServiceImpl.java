@@ -14,6 +14,7 @@ import java.util.List;
 public class CategoriaServiceImpl extends CrudServiceImpl<Categoria, Long> implements CategoriaService {
 
     private final CategoriaRepository categoriaRepository;
+
     @Override
     public JpaRepository<Categoria, Long> getRepository() {
         return categoriaRepository;
