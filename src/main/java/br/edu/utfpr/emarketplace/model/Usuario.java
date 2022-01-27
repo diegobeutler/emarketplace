@@ -50,6 +50,9 @@ public class Usuario implements Serializable {
     @Column(name = "PASSWORD", nullable = false)
     private String password;
 
+    @Column(name = "ATIVO")
+    private Boolean ativo;
+
     @ManyToMany(cascade = CascadeType.ALL,
             fetch = FetchType.EAGER)
     private Set<Permissao> permissoes = new HashSet<>();
@@ -63,9 +66,12 @@ public class Usuario implements Serializable {
     private transient boolean deleteImage;
 
     @Transient
-    private transient boolean ehInstituicao;
+    private transient boolean ehInstitution;
 
-   public boolean isUpdateImage() {
-        return imagem.startsWith("data");
+    @Transient
+    private transient boolean vadationInstitution;
+
+    public boolean isEhInstitution() {
+        return ehInstitution || permissoes.stream().anyMatch(permissao -> br.edu.utfpr.emarketplace.enumeration.Permissao.ROLE_INSTITUTION.name().equals(permissao.getNome()));
     }
 }

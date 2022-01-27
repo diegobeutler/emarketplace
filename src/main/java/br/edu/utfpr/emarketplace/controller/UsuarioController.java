@@ -55,4 +55,9 @@ public class UsuarioController {
         passwordResetTokenService.updatePassword(passwordDto);
         return new GenericResponse("Senha Atualizada com sucesso");
     }
+
+    @PostMapping("validate")
+    public void ativaCadastroInstitution(@RequestBody Long id) throws Exception {
+        usuarioService.ativaCadastroInstitution(id);
+    }
 }

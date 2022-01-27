@@ -14,6 +14,7 @@ import java.io.Serializable;
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
 @Audited
+@Builder
 @Table(name = "PERMISSAO")
 public class Permissao implements Serializable,
         GrantedAuthority {

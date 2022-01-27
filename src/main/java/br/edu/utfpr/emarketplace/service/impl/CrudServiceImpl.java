@@ -62,7 +62,6 @@ public abstract class CrudServiceImpl<T, ID extends Serializable> implements Cru
     public void preSave(T entity) throws IOException {
     }
 
-
     public void postSave(T entity) throws IOException {
     }
 
