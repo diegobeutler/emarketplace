@@ -2,7 +2,6 @@ package br.edu.utfpr.emarketplace.controller;
 
 
 import br.edu.utfpr.emarketplace.model.Usuario;
-import br.edu.utfpr.emarketplace.resetPassword.GenericResponse;
 import br.edu.utfpr.emarketplace.resetPassword.dto.PasswordDto;
 import br.edu.utfpr.emarketplace.service.PasswordResetTokenService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
@@ -45,19 +44,17 @@ public class UsuarioController {
     }
 
     @PostMapping("resetPassword")
-    public GenericResponse enviarEmailResetPassword(@RequestBody String username){
+    public void enviarEmailResetPassword(@RequestBody String username){
         passwordResetTokenService.enviarEmailResetPassword(username);
-        return new GenericResponse("E-mail enviado com sucesseo");
     }
 
     @PostMapping("updatePassword")
-    public GenericResponse updatePassword(@RequestBody PasswordDto passwordDto) throws Exception {
+    public void updatePassword(@RequestBody PasswordDto passwordDto) throws Exception {
         passwordResetTokenService.updatePassword(passwordDto);
-        return new GenericResponse("Senha Atualizada com sucesso");
     }
 
     @PostMapping("validate")
-    public void ativaCadastroInstitution(@RequestBody Long id) throws Exception {
+    public void ativaCadastroInstitution(@RequestBody Long id) {
         usuarioService.ativaCadastroInstitution(id);
     }
 }
