@@ -14,6 +14,7 @@ import javax.validation.constraints.Max;
 import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 @Entity
 @Getter
@@ -81,5 +82,7 @@ public class Anuncio {
     @ManyToOne(optional = false)
     private Categoria categoria;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<ImagemAnuncio> imagens;
 
 }

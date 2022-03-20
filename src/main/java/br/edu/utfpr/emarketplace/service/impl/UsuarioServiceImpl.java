@@ -32,6 +32,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import static br.edu.utfpr.emarketplace.service.utils.ImageUtils.converterDataToByte;
+
 @Service
 @RequiredArgsConstructor
 @Slf4j
@@ -79,6 +81,11 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
     }
 
     @Override
+    public void preSave(Usuario usuario) {
+        tratarImageUserPreSave(usuario);
+    }
+
+    @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public Usuario salvar(Usuario usuario) throws Exception {
         if (usuario.getId() == null) {
@@ -91,10 +98,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
         return save(usuario);
     }
 
-    @Override
-    public void preSave(Usuario usuario) {
-        tratarImageUserPreSave(usuario);
-    }
+
 
     @Override
     public void postSave(Usuario usuario) {
@@ -142,11 +146,11 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
     private void tratarImageUserPreSave(Usuario usuario) {
         imagedata = null;
         if (usuario.getImagem().startsWith("data")) {
-            String str = usuario.getImagem();
-            imagedata = java.util.Base64.getDecoder().decode(str.substring(str.indexOf(",") + 1));
+            String data = usuario.getImagem();
+            imagedata = converterDataToByte(data);
             usuario.setImagem(null);
         } else if (usuario.isDeleteImage()) {
-            amazonS3BucketService.deleteFileFromBucket(usuario.getId() + ".png");
+            amazonS3BucketService.deleteFileFromBucket(usuario.getId() + ".png", true);
         }
     }
 
@@ -167,8 +171,8 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
             try {
                 File file = new File(usuario.getId() + ".png");
                 BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imagedata));
-                ImageIO.write(bufferedImage, "png", new File(usuario.getId() + ".png"));
-                usuarioRepository.updateImagem(usuario.getId(), amazonS3BucketService.uploadFile(file));
+                ImageIO.write(bufferedImage, "png", file);
+                usuarioRepository.updateImagem(usuario.getId(), amazonS3BucketService.uploadFile(file, true));
             } catch (Exception ex) {
                 log.error("Erro salvando imagem do usuário: " + ex.getMessage());
                 // todo adicionar exceção personalizada com mensagem....

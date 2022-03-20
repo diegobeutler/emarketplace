@@ -11,12 +11,9 @@ import com.amazonaws.services.s3.model.DeleteObjectRequest;
 import com.amazonaws.services.s3.model.PutObjectRequest;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-import org.springframework.web.multipart.MultipartFile;
 
 import javax.annotation.PostConstruct;
 import java.io.File;
-import java.io.FileOutputStream;
-import java.io.IOException;
 
 @Service
 public class AmazonS3BucketServiceImpl {
@@ -29,6 +26,8 @@ public class AmazonS3BucketServiceImpl {
     private String bucketName;
     @Value("${pathUser}")
     private String pathUser;
+    @Value("${pathAd}")
+    private String pathAd;
     @Value("${accessKey}")
     private String accessKey;
     @Value("${secretKey}")
@@ -37,28 +36,16 @@ public class AmazonS3BucketServiceImpl {
     @PostConstruct
     private void initializeAmazon() {
         AWSCredentials credentials = new BasicAWSCredentials(this.accessKey, this.secretKey);
-//        this.amazonS3 = new AmazonS3Client(credentials);
-        this.amazonS3 = AmazonS3ClientBuilder.standard().withRegion(Regions.SA_EAST_1).withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
+        this.amazonS3 = AmazonS3ClientBuilder.standard().withRegion(Regions.SA_EAST_1)
+                .withCredentials(new AWSStaticCredentialsProvider(credentials)).build();
     }
 
-//    public String uploadFile(MultipartFile multipartFile) {
-//        String fileURL = "";
-//        try {
-//            File file = convertMultipartFileToFile(multipartFile);
-//            String fileName = multipartFile.getOriginalFilename();
-//            uploadFileToBucket(fileName, file);
-//            fileURL = endpointUrl + "/" + bucketName + pathUser + "/" + fileName;
-//            file.delete();
-//        } catch (Exception e) {
-//            e.printStackTrace();
-//        }
-//        return fileURL;
-//    }
-    public String uploadFile(File file) {
+    public String uploadFile(File file, boolean isImageProfile) {
         String fileURL = "";
+        String path = bucketName + (isImageProfile ? pathUser:  pathAd);
         try {
-            uploadFileToBucket(file.getName(), file);
-            fileURL = endpointUrl + "/" + bucketName + pathUser + "/" + file.getName();
+            uploadFileToBucket(path, file.getName(), file);
+            fileURL = endpointUrl + "/" + path + "/" + file.getName();
             file.delete();
         } catch (Exception e) {
             e.printStackTrace();
@@ -66,23 +53,15 @@ public class AmazonS3BucketServiceImpl {
         return fileURL;
     }
 
-    private File convertMultipartFileToFile(MultipartFile file) throws IOException {
-        File convertedFile = new File(file.getOriginalFilename());
-        FileOutputStream fos = new FileOutputStream(convertedFile);
-        fos.write(file.getBytes());
-        fos.close();
-        return convertedFile;
-    }
-
-    private void uploadFileToBucket(String fileName, File file) {
-        amazonS3.putObject(new PutObjectRequest(bucketName + pathUser, fileName, file)
+    private void uploadFileToBucket(String path, String fileName, File file) {
+        amazonS3.putObject(new PutObjectRequest(path, fileName, file)
                 .withCannedAcl(CannedAccessControlList.PublicRead));
     }
 
-    public String deleteFileFromBucket(String fileName) {
-        amazonS3.deleteObject(new DeleteObjectRequest(bucketName + pathUser, fileName));
+    public String deleteFileFromBucket(String fileName, boolean isImageProfile) {// todo não funcionou
+        String path = bucketName + (isImageProfile ? pathUser:  pathAd);
+        amazonS3.deleteObject(new DeleteObjectRequest(path, fileName));
         return "Deletion Successful";
     }
-
 }
 

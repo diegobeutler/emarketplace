@@ -11,7 +11,7 @@ import javax.validation.constraints.Max;
 @NoArgsConstructor
 @AllArgsConstructor
 @EqualsAndHashCode(of = {"id"})
-@Table(name = "Estado")
+@Table(name = "ESTADO")
 public class Estado {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
