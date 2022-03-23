@@ -6,7 +6,6 @@ import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.model.Categoria;
 import br.edu.utfpr.emarketplace.model.ImagemAnuncio;
 import br.edu.utfpr.emarketplace.repository.AnuncioRepository;
-import br.edu.utfpr.emarketplace.repository.ImagemAnuncioRepository;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
@@ -22,11 +21,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.UUID;
 import java.util.stream.Collectors;
+
+import static br.edu.utfpr.emarketplace.service.utils.ListUtils.isNullOrEmpty;
 
 @RequiredArgsConstructor
 @Service
@@ -35,17 +35,16 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     private final AnuncioRepository anuncioRepository;
     private final UsuarioService usuarioService;
     private final AmazonS3BucketServiceImpl amazonS3BucketService;
-    private final ImagemAnuncioRepository imagemAnuncioRepository;
+    private List<String> imagensParaExcluir;
+    private List<byte[]> imagensDataParaSalvar;
 
-    List<String> imagensParaExcluir = new ArrayList<>();
-    List<byte[]> imagensDataParaSalvar = new ArrayList<>();
     @Override
     public JpaRepository<Anuncio, Long> getRepository() {
         return anuncioRepository;
     }
 
     @Override
-    public void valid(Anuncio entity) throws Exception {
+    public void valid(Anuncio entity) {
 
     }
 
@@ -73,7 +72,7 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
-    public void postSave(Anuncio anuncio) throws IOException {
+    public void postSave(Anuncio anuncio) {
         deleteOldImages();
         saveNewImages(anuncio);
     }
@@ -89,33 +88,33 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     private void updateImagesAws(Anuncio anuncio) {
-        imagensParaExcluir = new ArrayList<>();
-        imagensDataParaSalvar = new ArrayList<>();
+        imagensParaExcluir = null;
+        imagensDataParaSalvar = null;
         var imagens = anuncio.getImagens().stream()
                 .map(ImagemAnuncio::getUrl)
                 .collect(Collectors.toList());
-        if(anuncio.getId() != null) {
+        if (anuncio.getId() != null) {
             imagensParaExcluir = getImagesDeleted(imagens, anuncio.getId());
         }
-        imagensDataParaSalvar = getImagensDataParaSalvar(imagens, anuncio);
+        imagensDataParaSalvar = getImagensDataParaSalvar(imagens);
         anuncio.getImagens().removeAll(anuncio.getImagens().stream()// todo serve para remover as imagens em base 64, pois já foram salvas e o caminho está na lista
-                .filter(imagemAnuncio -> imagemAnuncio.getUrl().startsWith("data")).collect(Collectors.toList()));
+                .filter(imagemAnuncio -> imagemAnuncio.getUrl().startsWith("data")).toList());
     }
 
-    private List<byte[]> getImagensDataParaSalvar(List<String> imagens, Anuncio anuncio) {
+    private List<byte[]> getImagensDataParaSalvar(List<String> imagens) {
         return imagens.stream().filter(imagemAnuncio -> imagemAnuncio.startsWith("data"))
                 .map(ImageUtils::converterDataToByte)
                 .collect(Collectors.toList());
     }
 
     private void deleteOldImages() {
-        if(!imagensParaExcluir.isEmpty()){
-            imagensParaExcluir.stream().forEach(imagem -> amazonS3BucketService.deleteFileFromBucket(imagem.substring(60,100), false));
+        if (!isNullOrEmpty(imagensParaExcluir)) {
+            imagensParaExcluir.forEach(imagem -> amazonS3BucketService.deleteFileFromBucket(imagem.substring(60, 100), false));
         }
     }
 
     private void saveNewImages(Anuncio anuncio) {
-        if (!imagensDataParaSalvar.isEmpty()) {
+        if (!isNullOrEmpty(imagensDataParaSalvar)) {
             imagensDataParaSalvar.forEach(imageData -> {
                 try {
                     var file = new File(UUID.randomUUID() + ".png");
@@ -136,7 +135,7 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
                 .orElseThrow(() -> new NoSuchElementException("Anuncio não encontrado."))
                 .getImagens().stream()
                 .map(ImagemAnuncio::getUrl)
-                .collect(Collectors.toList());
+                .toList();
         return imagensDoBanco.stream()
                 .filter(imagemBanco -> !imagens.contains(imagemBanco) && !imagemBanco.startsWith("data"))
                 .collect(Collectors.toList());

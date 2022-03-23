@@ -98,8 +98,6 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
         return save(usuario);
     }
 
-
-
     @Override
     public void postSave(Usuario usuario) {
         salvarImageUser(usuario);

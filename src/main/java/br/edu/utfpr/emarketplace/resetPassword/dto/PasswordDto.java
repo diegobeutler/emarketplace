@@ -5,7 +5,6 @@ import lombok.Data;
 @Data
 public class PasswordDto {
     private String token;
-//   todo  @ValidPassword
     private String newPassword;
 
 }

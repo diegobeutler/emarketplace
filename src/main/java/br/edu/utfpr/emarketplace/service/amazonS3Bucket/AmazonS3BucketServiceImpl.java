@@ -42,7 +42,7 @@ public class AmazonS3BucketServiceImpl {
 
     public String uploadFile(File file, boolean isImageProfile) {
         String fileURL = "";
-        String path = bucketName + (isImageProfile ? pathUser:  pathAd);
+        String path = bucketName + (isImageProfile ? pathUser : pathAd);
         try {
             uploadFileToBucket(path, file.getName(), file);
             fileURL = endpointUrl + "/" + path + "/" + file.getName();
@@ -58,10 +58,9 @@ public class AmazonS3BucketServiceImpl {
                 .withCannedAcl(CannedAccessControlList.PublicRead));
     }
 
-    public String deleteFileFromBucket(String fileName, boolean isImageProfile) {// todo não funcionou
-        String path = bucketName + (isImageProfile ? pathUser:  pathAd);
+    public void deleteFileFromBucket(String fileName, boolean isImageProfile) {
+        String path = bucketName + (isImageProfile ? pathUser : pathAd);
         amazonS3.deleteObject(new DeleteObjectRequest(path, fileName));
-        return "Deletion Successful";
     }
 }
 

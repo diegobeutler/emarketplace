@@ -1,6 +1,8 @@
 package br.edu.utfpr.emarketplace.config;
 
+import br.edu.utfpr.emarketplace.exception.InvalidTokenException;
 import br.edu.utfpr.emarketplace.exception.UsuarioJaExisteException;
+import io.micrometer.core.lang.NonNullApi;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -13,7 +15,13 @@ import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExcep
 public class ControllerAdviceHandlerException extends ResponseEntityExceptionHandler {
 
     @ExceptionHandler(value = UsuarioJaExisteException.class)
-    public ResponseEntity<ErrorResponse> usuarioJaExiste(UsuarioJaExisteException exception, WebRequest request) {
+    public ResponseEntity<ErrorResponse> usuarioJaExiste(UsuarioJaExisteException exception) {
+        var errorResponse = new ErrorResponse(exception.getMessage());
+        return new ResponseEntity<>((errorResponse), HttpStatus.BAD_REQUEST);
+    }
+
+    @ExceptionHandler(value = InvalidTokenException.class)
+    public ResponseEntity<ErrorResponse> invalidToke(InvalidTokenException exception) {
         var errorResponse = new ErrorResponse(exception.getMessage());
         return new ResponseEntity<>((errorResponse), HttpStatus.BAD_REQUEST);
     }

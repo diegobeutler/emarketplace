@@ -1,5 +1,6 @@
 package br.edu.utfpr.emarketplace.service.impl;
 
+import br.edu.utfpr.emarketplace.exception.InvalidTokenException;
 import br.edu.utfpr.emarketplace.model.PasswordResetToken;
 import br.edu.utfpr.emarketplace.model.Usuario;
 import br.edu.utfpr.emarketplace.repository.PasswordResetTokenRepository;
@@ -39,7 +40,6 @@ public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordReset
         return passwordResetTokenRepository;
     }
 
-
     @Override
     public String validatePasswordResetToken(String token) {
         final PasswordResetToken passToken = passwordResetTokenRepository.findByToken(token);
@@ -67,49 +67,25 @@ public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordReset
         }
         String token = UUID.randomUUID().toString();
         createPasswordResetTokenForUser(usuario.get(), token);
-        envioEmailServiceImpl.resetTokenEmail("http://localhost:4200/usuario",token, usuario.get().getEmail());
+        envioEmailServiceImpl.resetTokenEmail("http://localhost:4200/usuario", token, usuario.get().getEmail());
     }
 
     @Override
     public void updatePassword(PasswordDto passwordDto) throws Exception {
-            String result = validatePasswordResetToken(passwordDto.getToken());
-//            if (result != null) {
-//                return "redirect:usuario/reset";
-//            }
-            Usuario usuario = getUserByPasswordResetToken(passwordDto.getToken());
-            if (usuario != null) {
-                usuarioService.changeUserPassword(usuario, passwordDto.getNewPassword());
-//                model.addAttribute("mensagem", "Senha atualizada com sucesso");
-//                return "login";
-            }
-//            else {
-//                return "redirect:/usuario/reset";
-//            }
-//        }
+        String result = validatePasswordResetToken(passwordDto.getToken());
+        if (result != null) {
+            throw new InvalidTokenException("Token não encontrado ou expirado.");
+        }
+        Usuario usuario = getUserByPasswordResetToken(passwordDto.getToken());
+        if (usuario != null) {
+            usuarioService.changeUserPassword(usuario, passwordDto.getNewPassword());
+        } else {
+            throw new InvalidTokenException("Token não encontrado");
+        }
     }
 
     private void createPasswordResetTokenForUser(Usuario usuario, String token) {
         PasswordResetToken myToken = new PasswordResetToken(token, usuario);
         passwordResetTokenRepository.save(myToken);
     }
-
-//    @Override
-//    public SimpleMailMessage constructResetTokenEmail(
-//            String contextPath, String token, Usuario usuario) {
-//        String url = contextPath + "/changePassword?token=" + token;
-//        String message = "Olá,\nPara alterar a sua senha, basta acessar o link e inserir a nova senha: \n";
-//        return constructEmail("Alteração de senha Relojoaria Hora Certa", message + url, usuario);
-//    }
-//
-//    @Override
-//    public SimpleMailMessage constructEmail(String subject, String body,
-//                                            Usuario usuario) {
-//        SimpleMailMessage email = new SimpleMailMessage();
-//        email.setSubject(subject);
-//        email.setText(body);
-//        email.setTo(usuario.getUsername());
-//        email.setFrom("relojoariahoracerta.gerencia@gmail.com");
-//        return email;
-//    }
-
 }

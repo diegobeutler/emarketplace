@@ -44,7 +44,7 @@ public class UsuarioController {
     }
 
     @PostMapping("resetPassword")
-    public void enviarEmailResetPassword(@RequestBody String username){
+    public void enviarEmailResetPassword(@RequestBody String username) {
         passwordResetTokenService.enviarEmailResetPassword(username);
     }
 

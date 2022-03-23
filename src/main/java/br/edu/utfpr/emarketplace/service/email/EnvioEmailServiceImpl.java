@@ -26,7 +26,7 @@ public class EnvioEmailServiceImpl {
 
     public void validateInstituicaoEmail(String url, Set<String> toEmail) {
         String message = "Olá,\nFavor validar o cadastro da instituição, acessando o link: \n";
-        toEmail.stream().forEach(e ->  mailSender.send(constructEmail("Validação de cadastro E-marketplace", message + url, e)));
+        toEmail.forEach(e -> mailSender.send(constructEmail("Validação de cadastro E-marketplace", message + url, e)));
     }
 
 //    public SimpleMailMessage constructConviteInstituicaoEmail(String toEmail) {
@@ -42,7 +42,7 @@ public class EnvioEmailServiceImpl {
         email.setReplyTo("teste");
         email.setText(body);
         email.setTo(toEmail);
-        email.setFrom( from);
+        email.setFrom(from);
         return email;
     }
 }
