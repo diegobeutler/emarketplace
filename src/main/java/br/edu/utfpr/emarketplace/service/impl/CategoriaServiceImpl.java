@@ -21,25 +21,7 @@ public class CategoriaServiceImpl extends CrudServiceImpl<Categoria, Long> imple
     }
 
     @Override
-    public void valid(Categoria entity) throws Exception {
-
-    }
-
-    @Override
-    public Categoria salvar(Categoria anuncio) throws Exception {
-        if (anuncio.getId() == null) {
-//
-        }
-        return save(anuncio);
-    }
-
-    @Override
-    public void excluir(Long id) {
-        delete(id);
-    }
-
-    @Override
-    public List<Categoria> listarTodos() {
-        return null;
+    public List<Categoria> completeByDescricao(String query) {
+        return categoriaRepository.findByDescricaoContainingIgnoreCaseOrderByDescricao(query);
     }
 }

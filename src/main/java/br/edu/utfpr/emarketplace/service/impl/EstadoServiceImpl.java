@@ -24,11 +24,6 @@ public class EstadoServiceImpl extends CrudServiceImpl<Estado, Long> implements 
     }
 
     @Override
-    public List<Estado> listarTodos() {
-        return findAll();
-    }
-
-    @Override
     public List<Estado> completeByNomeOrUf(String query) {
         query = "%" + query + "%";
         return estadoRepository.completeByNomeOrUf(query);

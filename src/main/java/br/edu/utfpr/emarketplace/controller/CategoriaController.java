@@ -1,41 +1,26 @@
-//package br.edu.utfpr.emarketplace.controller;
-//
-//import br.edu.utfpr.editorartigos.model.Categoria;
-//import br.edu.utfpr.editorartigos.service.CategoriaService;
-//import lombok.RequiredArgsConstructor;
-//import org.springframework.web.bind.annotation.*;
-//
-//import java.util.List;
-//
-//@RestController
-//@RequestMapping("categoria/")
-//@RequiredArgsConstructor
-//public class CategoriaController {
-//
-//    private final CategoriaService categoriaService;
-//
-//    @PostMapping("incluir")
-//    public Categoria incluir(@RequestBody Categoria categoria) throws Exception {
-//        return categoriaService.cadastrarCategoria(categoria);
-//    }
-//
-//    @PutMapping("atualizar")
-//    public Categoria atualizar(@RequestBody Categoria categoria) throws Exception {
-//        return categoriaService.cadastrarCategoria(categoria);
-//    }
-//
-//    @DeleteMapping("{id}")
-//    public void excluir(@PathVariable("id") Long id) {
-//        categoriaService.deletarCategoria(id);
-//    }
-//
-//    @GetMapping("pesquisar-todos")
-//    public List<Categoria> pesquisarTodos() {
-//        return categoriaService.listarTodos();
-//    }
-//
-//    @GetMapping("{id}")
-//    public Categoria findOne(@PathVariable("id") Long id) {
-//        return categoriaService.findById(id);
-//    }
-//}
+package br.edu.utfpr.emarketplace.controller;
+
+
+import br.edu.utfpr.emarketplace.model.Categoria;
+import br.edu.utfpr.emarketplace.model.Estado;
+import br.edu.utfpr.emarketplace.service.CategoriaService;
+import br.edu.utfpr.emarketplace.service.EstadoService;
+import lombok.RequiredArgsConstructor;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
+
+import java.util.List;
+
+@RestController
+@RequestMapping("categoria")
+@RequiredArgsConstructor
+public class CategoriaController {
+    private final CategoriaService categoriaService;
+
+    @GetMapping("complete-by-descricao")
+    private List<Categoria> completeByDescricao(@RequestParam("query") String query) {
+        return categoriaService.completeByDescricao(query);
+    }
+}

@@ -17,11 +17,6 @@ import java.util.List;
 public class EstadoController {
     private final EstadoService estadoService;
 
-    @GetMapping("pesquisar-todos")
-    private List<Estado> pesquisarTodos() {
-        return estadoService.listarTodos();
-    }
-
     @GetMapping("complete-by-nome-or-uf")
     private List<Estado> completeByNomeOrUf(@RequestParam("query") String query) {
         return estadoService.completeByNomeOrUf(query);
