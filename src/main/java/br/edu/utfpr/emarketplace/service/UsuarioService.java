@@ -17,4 +17,6 @@ public interface UsuarioService extends CrudService<Usuario, Long> {
     void changeUserPassword(Usuario usuario, String newPassword) throws Exception;
 
     void ativaCadastroInstitution(Long id);
+
+    List<Usuario> completeByInstituicaoAndNome(String query);
 }

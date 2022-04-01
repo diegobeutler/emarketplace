@@ -47,7 +47,7 @@ public class Anuncio {
     private JsonNode caracteristicas;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "OPERACAO", length = 10, nullable = false)
+    @Column(name = "OPERACAO", length = 14, nullable = false)
     private Operacao operacao;
 
     @Enumerated(EnumType.STRING)

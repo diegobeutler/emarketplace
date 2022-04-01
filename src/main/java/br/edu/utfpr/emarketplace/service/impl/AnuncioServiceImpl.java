@@ -55,17 +55,11 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
-    @Transactional
     public Anuncio salvar(Anuncio anuncio) throws Exception {// todo ver como fica a questaão dos anuncios
         if (anuncio.getId() == null) {
             anuncio.setDataPublicacao(LocalDate.now());
             anuncio.setStatus(Status.DISPONIVEL);
-            anuncio.setOperacao(Operacao.VENDA);
             anuncio.setUsuarioOrigem(usuarioService.getUsuarioLogado());
-
-
-            ////mudar
-            anuncio.setCategoria(Categoria.builder().id(1L).build());
         }
 
         return save(anuncio);

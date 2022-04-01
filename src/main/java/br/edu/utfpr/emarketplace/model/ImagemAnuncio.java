@@ -21,12 +21,4 @@ public class ImagemAnuncio {
 
     @Column(name = "URL_IMAGEM", nullable = false)
     private String url;
-
-    public String getUrl() {
-        return url;
-    }
-
-    public void setUrl(String url) {
-        this.url = url;
-    }
 }

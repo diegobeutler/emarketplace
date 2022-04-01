@@ -10,6 +10,7 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 
@@ -28,4 +29,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Long> {
     @Modifying
     @Query(value = "UPDATE USUARIO  SET ATIVO = true where id_usuario = :id", nativeQuery = true)
     void updateAtivo(@Param("id") Long id);
+
+    List<Usuario> findByPermissoesContainingAndNomeContainingIgnoreCaseAndAtivoOrderByNome(Permissao permissao, String query, Boolean ativo);
 }

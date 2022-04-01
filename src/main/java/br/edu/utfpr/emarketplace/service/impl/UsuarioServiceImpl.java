@@ -177,4 +177,10 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
             }
         }
     }
+
+    public List<Usuario> completeByInstituicaoAndNome(String query) {
+        return usuarioRepository.findByPermissoesContainingAndNomeContainingIgnoreCaseAndAtivoOrderByNome(
+                Permissao.ROLE_ADMIN.getPermissao(), query, true
+        );
+    }
 }

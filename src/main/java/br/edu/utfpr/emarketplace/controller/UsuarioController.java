@@ -14,9 +14,9 @@ import java.util.List;
 @RequestMapping("usuario")
 @RequiredArgsConstructor
 public class UsuarioController {
+
     private final UsuarioService usuarioService;
     private final PasswordResetTokenService passwordResetTokenService;
-
 
     @PostMapping
     private Usuario salvar(@RequestBody Usuario usuario) throws Exception {
@@ -56,5 +56,10 @@ public class UsuarioController {
     @PostMapping("validate")
     public void ativaCadastroInstitution(@RequestBody Long id) {
         usuarioService.ativaCadastroInstitution(id);
+    }
+
+    @GetMapping("complete-by-instituicao-and-nome")
+    public List<Usuario> completeByInstituicaoAndNome( @RequestParam("query") String query) {
+        return usuarioService.completeByInstituicaoAndNome(query);
     }
 }
