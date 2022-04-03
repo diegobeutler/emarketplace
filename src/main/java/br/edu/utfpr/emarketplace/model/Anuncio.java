@@ -10,8 +10,6 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.envers.Audited;
 
 import javax.persistence.*;
-import javax.validation.constraints.Max;
-import javax.validation.constraints.Min;
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
@@ -35,8 +33,6 @@ public class Anuncio {
     private Long id;
 
     @Column(name = "TITULO", nullable = false)
-    @Min(3)
-    @Max(100)
     private String titulo;
 
     @Column(name = "DESCRICAO", length = 500)

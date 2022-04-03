@@ -1,19 +1,16 @@
 package br.edu.utfpr.emarketplace.service.impl;
 
-import br.edu.utfpr.emarketplace.enumeration.Operacao;
 import br.edu.utfpr.emarketplace.enumeration.Status;
 import br.edu.utfpr.emarketplace.model.Anuncio;
-import br.edu.utfpr.emarketplace.model.Categoria;
 import br.edu.utfpr.emarketplace.model.ImagemAnuncio;
+import br.edu.utfpr.emarketplace.model.dto.ImagemAnuncioSalvarDto;
 import br.edu.utfpr.emarketplace.repository.AnuncioRepository;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
-import br.edu.utfpr.emarketplace.service.utils.ImageUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -36,7 +33,7 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     private final UsuarioService usuarioService;
     private final AmazonS3BucketServiceImpl amazonS3BucketService;
     private List<String> imagensParaExcluir;
-    private List<byte[]> imagensDataParaSalvar;
+    private List<ImagemAnuncioSalvarDto> imagensDataParaSalvar;
 
     @Override
     public JpaRepository<Anuncio, Long> getRepository() {
@@ -49,13 +46,12 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
-    @Transactional
     public void preSave(Anuncio anuncio) {
         updateImagesAws(anuncio);
     }
 
     @Override
-    public Anuncio salvar(Anuncio anuncio) throws Exception {// todo ver como fica a questaão dos anuncios
+    public Anuncio salvar(Anuncio anuncio) throws Exception {
         if (anuncio.getId() == null) {
             anuncio.setDataPublicacao(LocalDate.now());
             anuncio.setStatus(Status.DISPONIVEL);
@@ -90,14 +86,14 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
         if (anuncio.getId() != null) {
             imagensParaExcluir = getImagesDeleted(imagens, anuncio.getId());
         }
-        imagensDataParaSalvar = getImagensDataParaSalvar(imagens);
+        imagensDataParaSalvar = getImagensDataParaSalvar(anuncio.getImagens());
         anuncio.getImagens().removeAll(anuncio.getImagens().stream()// todo serve para remover as imagens em base 64, pois já foram salvas e o caminho está na lista
                 .filter(imagemAnuncio -> imagemAnuncio.getUrl().startsWith("data")).toList());
     }
 
-    private List<byte[]> getImagensDataParaSalvar(List<String> imagens) {
-        return imagens.stream().filter(imagemAnuncio -> imagemAnuncio.startsWith("data"))
-                .map(ImageUtils::converterDataToByte)
+    private List<ImagemAnuncioSalvarDto> getImagensDataParaSalvar(List<ImagemAnuncio> imagens) {
+        return imagens.stream().filter(imagemAnuncio -> imagemAnuncio.getUrl().startsWith("data"))
+                .map(ImagemAnuncioSalvarDto::new)
                 .collect(Collectors.toList());
     }
 
@@ -109,18 +105,20 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     private void saveNewImages(Anuncio anuncio) {
         if (!isNullOrEmpty(imagensDataParaSalvar)) {
-            imagensDataParaSalvar.forEach(imageData -> {
+            imagensDataParaSalvar.forEach(imagem -> {
                 try {
                     var file = new File(UUID.randomUUID() + ".png");
-                    BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imageData));
+                    BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imagem.getImageData()));
                     ImageIO.write(bufferedImage, "png", file);
                     anuncio.getImagens().add(ImagemAnuncio.builder()
                             .url(amazonS3BucketService.uploadFile(file, false))
+                            .nome(imagem.getNome())
                             .build());
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
             });
+            anuncioRepository.save(anuncio);
         }
     }
 

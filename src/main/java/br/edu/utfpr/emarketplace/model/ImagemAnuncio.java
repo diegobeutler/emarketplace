@@ -21,4 +21,7 @@ public class ImagemAnuncio {
 
     @Column(name = "URL_IMAGEM", nullable = false)
     private String url;
+
+    @Column(name = "NOME_IMAGEM")
+    private String nome;
 }
