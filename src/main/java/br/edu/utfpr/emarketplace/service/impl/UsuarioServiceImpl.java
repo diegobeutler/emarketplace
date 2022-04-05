@@ -135,8 +135,11 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
         var usuario = getUsuarioLogado();
         if (usuario != null && usuario.getPermissoes().stream()
                 .anyMatch(permissao -> Permissao.ROLE_ADMIN.name().equals(permissao.getNome())) && !usuario.getId().equals(id)) {
-            usuario = super.findById(id);
-            usuario.setVadationInstitution(true);
+            var usuarioAux = super.findById(id);
+            if(!usuarioAux.getAtivo()){
+                usuario = usuarioAux;
+                usuario.setVadationInstitution(true);
+            }
         }
         return usuario;
     }

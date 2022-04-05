@@ -6,7 +6,6 @@ import org.hibernate.envers.NotAudited;
 
 import javax.persistence.*;
 import javax.validation.constraints.Email;
-import javax.validation.constraints.Max;
 import javax.validation.constraints.NotNull;
 import java.io.Serializable;
 import java.util.HashSet;
@@ -44,8 +43,7 @@ public class  Usuario implements Serializable {
     @Column(name = "URL_IMAGEM")
     private String imagem;
 
-    @Column(name = "USERNAME", length = 100, nullable = false)// todo pode dar problema
-    @Max(100)
+    @Column(name = "USERNAME", length = 100, nullable = false)
     private String username;
 
     @Column(name = "PASSWORD", nullable = false)
