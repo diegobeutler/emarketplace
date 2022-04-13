@@ -5,6 +5,7 @@ import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.model.ImagemAnuncio;
 import br.edu.utfpr.emarketplace.model.dto.ImagemAnuncioSalvarDto;
 import br.edu.utfpr.emarketplace.repository.AnuncioRepository;
+import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
@@ -75,6 +76,11 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     @Override
     public List<Anuncio> listarTodos() {
         return null;
+    }
+
+    @Override
+    public List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter) {
+        return anuncioRepository.findAnunciosByFilter(anuncioFilter);
     }
 
     private void updateImagesAws(Anuncio anuncio) {

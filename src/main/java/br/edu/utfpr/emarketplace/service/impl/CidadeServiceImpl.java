@@ -25,7 +25,6 @@ public class CidadeServiceImpl extends CrudServiceImpl<Cidade, Long> implements 
 
     @Override
     public List<Cidade> completeByEstadoAndNome(Long idEstado, String query) {
-//        query = "%" + query + "%";
-        return cidadeRepository.findByEstado_IdAndNomeContainingIgnoreCaseOrderByNome(idEstado, query);
+        return cidadeRepository.findByEstadoIdAndNomeContainingIgnoreCaseOrderByNome(idEstado, query);
     }
 }

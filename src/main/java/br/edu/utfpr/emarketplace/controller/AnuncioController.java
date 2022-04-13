@@ -1,6 +1,7 @@
 package br.edu.utfpr.emarketplace.controller;
 
 import br.edu.utfpr.emarketplace.model.Anuncio;
+import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
@@ -31,5 +32,10 @@ public class AnuncioController {
     @GetMapping("{id}")
     private Anuncio findById(@PathVariable("id") Long id) {
         return anuncioService.findById(id);
+    }
+
+    @PostMapping("/filter")
+    private List<Anuncio> findAnunciosByFilter(@RequestBody AnuncioFilter anuncioFilter) {
+        return anuncioService.findAnunciosByFilter(anuncioFilter);
     }
 }

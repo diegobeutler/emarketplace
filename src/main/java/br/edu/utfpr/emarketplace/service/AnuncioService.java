@@ -1,6 +1,7 @@
 package br.edu.utfpr.emarketplace.service;
 
 import br.edu.utfpr.emarketplace.model.Anuncio;
+import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 
 import java.util.List;
 
@@ -11,4 +12,5 @@ public interface AnuncioService extends CrudService<Anuncio, Long> {
 
     List<Anuncio> listarTodos();
 
+    List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter);
 }
