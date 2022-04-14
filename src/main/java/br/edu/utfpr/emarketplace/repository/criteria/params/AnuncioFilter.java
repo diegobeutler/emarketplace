@@ -13,6 +13,8 @@ import lombok.Setter;
 import java.io.Serializable;
 import java.time.LocalDate;
 
+import static br.edu.utfpr.emarketplace.service.utils.DateUtils.converterLocalDateByString;
+
 @Getter
 @Setter
 public class AnuncioFilter  implements Serializable {
@@ -22,8 +24,9 @@ public class AnuncioFilter  implements Serializable {
     private String descricao;
     private Operacao operacao;
     private Status status;
-    private Usuario autor;
-    private Usuario adquirente;
+    private Boolean anunciei;
+    private Boolean adquiri;
+    private Usuario usuarioLogado;
     private String dataPublicacaoMin;
     private String dataPublicacaoMax;
     private Categoria categoria;
@@ -31,10 +34,10 @@ public class AnuncioFilter  implements Serializable {
     private Cidade cidade;
 
     public LocalDate getDataPublicacaoMin() {
-        return LocalDate.now();
+        return converterLocalDateByString(dataPublicacaoMin);
     }
 
     public LocalDate getDataPublicacaoMax() {
-        return LocalDate.now();
+        return converterLocalDateByString(dataPublicacaoMax);
     }
 }

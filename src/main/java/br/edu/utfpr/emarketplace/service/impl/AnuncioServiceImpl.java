@@ -80,6 +80,9 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     @Override
     public List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter) {
+        if (anuncioFilter.getAnunciei()|| anuncioFilter.getAdquiri()){
+            anuncioFilter.setUsuarioLogado(usuarioService.getUsuarioLogado());
+        }
         return anuncioRepository.findAnunciosByFilter(anuncioFilter);
     }
 
