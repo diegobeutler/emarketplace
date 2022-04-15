@@ -9,6 +9,7 @@ import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
+import br.edu.utfpr.emarketplace.service.email.EnvioEmailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,7 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     private final AnuncioRepository anuncioRepository;
     private final UsuarioService usuarioService;
+    private final EnvioEmailServiceImpl envioEmailService;
     private final AmazonS3BucketServiceImpl amazonS3BucketService;
     private List<String> imagensParaExcluir;
     private List<ImagemAnuncioSalvarDto> imagensDataParaSalvar;
@@ -84,6 +86,11 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
             anuncioFilter.setUsuarioLogado(usuarioService.getUsuarioLogado());
         }
         return anuncioRepository.findAnunciosByFilter(anuncioFilter);
+    }
+
+    @Override
+    public void convidarInstituicao(String emailInstituicao) {
+        this.envioEmailService.convidarInstituicaoEmail(emailInstituicao);
     }
 
     private void updateImagesAws(Anuncio anuncio) {

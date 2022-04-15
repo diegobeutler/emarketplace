@@ -128,6 +128,10 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
     @Override
     public void ativaCadastroInstitution(Long id) {
         usuarioRepository.updateAtivo(id);
+        var instituicao = findById(id);
+        if (instituicao != null) {
+            this.envioEmailServiceImpl.notificarInstituicaoEmail(instituicao.getEmail());
+        }
     }
 
     @Override

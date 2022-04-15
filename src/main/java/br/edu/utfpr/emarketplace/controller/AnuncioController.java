@@ -38,4 +38,9 @@ public class AnuncioController {
     private List<Anuncio> findAnunciosByFilter(@RequestBody AnuncioFilter anuncioFilter) {
         return anuncioService.findAnunciosByFilter(anuncioFilter);
     }
+
+    @PostMapping("/convidar-instituicao")
+    private void convidarInstituicao(@RequestBody String emailInstituicao) {
+        anuncioService.convidarInstituicao(emailInstituicao);
+    }
 }
