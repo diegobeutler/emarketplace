@@ -11,7 +11,7 @@ import java.util.Set;
 @Service
 public class EnvioEmailServiceImpl {
 
-    @Value("${spring.mail.password}")
+    @Value("${spring.mail.username}")
     private String from;
 
     @Autowired
@@ -29,20 +29,27 @@ public class EnvioEmailServiceImpl {
         toEmail.forEach(e -> mailSender.send(constructEmail("Validação de cadastro E-marketplace", message + url, e)));
     }
 
-//    public SimpleMailMessage constructConviteInstituicaoEmail(String toEmail) {
-//        String url = contextPath + "/changePassword?token=" + token;
-//        String message = "Olá,\nPara alterar a sua senha, basta acessar o link e inserir a nova senha: \n";
-//        return constructEmail("Alteração de senha Relojoaria Hora Certa", message + url, toEmail);
-//    }
+    public void convidarInstituicaoEmail(String toEmail) {
+        String message = "Olá,\nGostaria de informar que um usuário do E-marketplce, não lhe encontrou na lista de instiuições disponíveis para doação de produtos." +
+                "\nPara que possa receber doações por meio do sistema, deve efetuar o seu cadastro, acessando o endereço: http://localhost:4200/usuario/form";
+        mailSender.send(constructEmail("Venha fazer parte do E-marketplace!", message, toEmail));
+    }
 
-    public SimpleMailMessage constructEmail(String subject, String body,
+    public void notificarInstituicaoEmail(String toEmail) {
+        String message = "Olá,\nSeu cadastro foi validado por um de nossos administradores." +
+                "\nAcesse: http://localhost:4200/login" +
+                "\nNessa tela basta entrar com seu login e senha. Caso tenha esquecido, pode acessar a opção de redefinir senha para a alteração.";
+        mailSender.send(constructEmail("Bem vinda ao E-marketplce!", message, toEmail));
+    }
+
+    private SimpleMailMessage constructEmail(String subject, String body,
                                             String toEmail) {
         SimpleMailMessage email = new SimpleMailMessage();
         email.setSubject(subject);
-        email.setReplyTo("teste");
+        email.setReplyTo(from);
         email.setText(body);
         email.setTo(toEmail);
-        email.setFrom(from);
+        email.setFrom("E-marketplace");
         return email;
     }
 }
