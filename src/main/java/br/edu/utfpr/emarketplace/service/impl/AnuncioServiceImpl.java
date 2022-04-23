@@ -5,6 +5,7 @@ import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.model.ImagemAnuncio;
 import br.edu.utfpr.emarketplace.model.dto.ImagemAnuncioSalvarDto;
 import br.edu.utfpr.emarketplace.repository.AnuncioRepository;
+import br.edu.utfpr.emarketplace.repository.ImagemAnuncioRepository;
 import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
@@ -13,6 +14,8 @@ import br.edu.utfpr.emarketplace.service.email.EnvioEmailServiceImpl;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
@@ -22,6 +25,7 @@ import java.io.IOException;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.NoSuchElementException;
+import java.util.Objects;
 import java.util.UUID;
 import java.util.stream.Collectors;
 
@@ -35,7 +39,8 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     private final UsuarioService usuarioService;
     private final EnvioEmailServiceImpl envioEmailService;
     private final AmazonS3BucketServiceImpl amazonS3BucketService;
-    private List<String> imagensParaExcluir;
+    private final ImagemAnuncioRepository imagemAnuncioRepository;
+    private List<ImagemAnuncio> imagensParaExcluir;
     private List<ImagemAnuncioSalvarDto> imagensDataParaSalvar;
 
     @Override
@@ -65,6 +70,7 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
     public void postSave(Anuncio anuncio) {
         deleteOldImages();
         saveNewImages(anuncio);
@@ -96,11 +102,8 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     private void updateImagesAws(Anuncio anuncio) {
         imagensParaExcluir = null;
         imagensDataParaSalvar = null;
-        var imagens = anuncio.getImagens().stream()
-                .map(ImagemAnuncio::getUrl)
-                .collect(Collectors.toList());
         if (anuncio.getId() != null) {
-            imagensParaExcluir = getImagesDeleted(imagens, anuncio.getId());
+            imagensParaExcluir = getImagesDeleted(anuncio);
         }
         imagensDataParaSalvar = getImagensDataParaSalvar(anuncio.getImagens());
         anuncio.getImagens().removeAll(anuncio.getImagens().stream()// todo serve para remover as imagens em base 64, pois já foram salvas e o caminho está na lista
@@ -115,7 +118,8 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     private void deleteOldImages() {
         if (!isNullOrEmpty(imagensParaExcluir)) {
-            imagensParaExcluir.forEach(imagem -> amazonS3BucketService.deleteFileFromBucket(imagem.substring(60, 100), false));
+            imagensParaExcluir.forEach(imagem -> amazonS3BucketService.deleteFileFromBucket(imagem.getUrl().substring(60, 100), false));
+            this.imagemAnuncioRepository.deleteAll(imagensParaExcluir);
         }
     }
 
@@ -126,10 +130,10 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
                     var file = new File(UUID.randomUUID() + ".png");
                     BufferedImage bufferedImage = ImageIO.read(new ByteArrayInputStream(imagem.getImageData()));
                     ImageIO.write(bufferedImage, "png", file);
-                    anuncio.getImagens().add(ImagemAnuncio.builder()
+                    anuncio.getImagens().add(imagemAnuncioRepository.save(ImagemAnuncio.builder()
                             .url(amazonS3BucketService.uploadFile(file, false))
                             .nome(imagem.getNome())
-                            .build());
+                            .build()));
                 } catch (IOException e) {
                     e.printStackTrace();
                 }
@@ -138,14 +142,13 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
         }
     }
 
-    private List<String> getImagesDeleted(List<String> imagens, Long id) {
-        var imagensDoBanco = anuncioRepository.findById(id)
+    private List<ImagemAnuncio> getImagesDeleted(Anuncio anuncio) {
+        var imagensId = anuncio.getImagens().stream()
+                .map(ImagemAnuncio::getId)
+                .filter(Objects::nonNull).toList();
+        var imagensDoBanco = anuncioRepository.findById(anuncio.getId())
                 .orElseThrow(() -> new NoSuchElementException("Anuncio não encontrado."))
-                .getImagens().stream()
-                .map(ImagemAnuncio::getUrl)
-                .toList();
-        return imagensDoBanco.stream()
-                .filter(imagemBanco -> !imagens.contains(imagemBanco) && !imagemBanco.startsWith("data"))
-                .collect(Collectors.toList());
+                .getImagens();
+        return imagensDoBanco.stream().filter(img -> !imagensId.contains(img.getId())).toList();
     }
 }

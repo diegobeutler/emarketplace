@@ -4,6 +4,7 @@ import br.edu.utfpr.emarketplace.service.CrudService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.io.Serializable;
@@ -49,13 +50,13 @@ public abstract class CrudServiceImpl<T, ID extends Serializable> implements Cru
     }
 
     @Override
-    @Transactional
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Throwable.class )
     public <S extends T> S save(S entity) throws Exception {
         valid(entity);
         preSave(entity);
-        var retorno = getRepository().save(entity);
-        postSave(retorno);
-        return retorno;
+        getRepository().save(entity);
+        postSave(entity);
+        return entity;
     }
 
     public void preSave(T entity) {

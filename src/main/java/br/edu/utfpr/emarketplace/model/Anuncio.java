@@ -2,6 +2,7 @@ package br.edu.utfpr.emarketplace.model;
 
 import br.edu.utfpr.emarketplace.enumeration.Operacao;
 import br.edu.utfpr.emarketplace.enumeration.Status;
+import com.fasterxml.jackson.annotation.JsonFormat;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.vladmihalcea.hibernate.type.json.JsonNodeBinaryType;
 import lombok.*;
@@ -50,12 +51,13 @@ public class Anuncio {
     @Column(name = "STATUS", length = 13, nullable = false)
     private Status status;
 
-    @Column(name = "VALOR", precision = 5, scale = 2)
+    @Column(name = "VALOR", precision = 12, scale = 2)
     private BigDecimal valor;
 
     @Column(name = "DATA_PUBLICACAO", nullable = false)
     private LocalDate dataPublicacao;
 
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "DATA_DEVOLOCAO")
     private LocalDate dataDevolocao;
 
