@@ -43,4 +43,9 @@ public class AnuncioController {
     private void convidarInstituicao(@RequestBody String emailInstituicao) {
         anuncioService.convidarInstituicao(emailInstituicao);
     }
+
+    @PostMapping("/update-status")
+    private Anuncio updateStatus(@RequestBody Anuncio anuncio) {
+        return anuncioService.updateStatus(anuncio);
+    }
 }

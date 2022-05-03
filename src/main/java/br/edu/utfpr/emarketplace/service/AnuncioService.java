@@ -15,4 +15,6 @@ public interface AnuncioService extends CrudService<Anuncio, Long> {
     List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter);
 
     void convidarInstituicao(String emailInstituicao);
+
+    Anuncio updateStatus(Anuncio anuncio);
 }

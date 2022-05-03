@@ -3,6 +3,7 @@ package br.edu.utfpr.emarketplace.service.impl;
 import br.edu.utfpr.emarketplace.enumeration.Status;
 import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.model.ImagemAnuncio;
+import br.edu.utfpr.emarketplace.model.Usuario;
 import br.edu.utfpr.emarketplace.model.dto.ImagemAnuncioSalvarDto;
 import br.edu.utfpr.emarketplace.repository.AnuncioRepository;
 import br.edu.utfpr.emarketplace.repository.ImagemAnuncioRepository;
@@ -88,10 +89,25 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     @Override
     public List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter) {
+        var usuarioLogado = usuarioService.getUsuarioLogado();
         if (anuncioFilter.getAnunciei()|| anuncioFilter.getAdquiri()){
-            anuncioFilter.setUsuarioLogado(usuarioService.getUsuarioLogado());
+            anuncioFilter.setUsuarioLogado(usuarioLogado);
         }
-        return anuncioRepository.findAnunciosByFilter(anuncioFilter);
+        var anuncios = anuncioRepository.findAnunciosByFilter(anuncioFilter);
+        setUsuarioLogadoEh(anuncios, usuarioLogado);
+        return anuncios;
+    }
+
+    private void setUsuarioLogadoEh(List<Anuncio> anuncios, Usuario usuarioLogado) {
+        if (Objects.nonNull(usuarioLogado)) {
+            anuncios.forEach(e -> setUsuarioLogadoEh(e, usuarioLogado));
+        }
+    }
+
+    private void setUsuarioLogadoEh(Anuncio anuncio, Usuario usuarioLogado) {
+        anuncio.setEhUsuarioOrigem(usuarioLogado.equals(anuncio.getUsuarioOrigem()));
+        anuncio.setEhUsuarioDestino(usuarioLogado.equals(anuncio.getUsuarioDestino()));
+        anuncio.setEhUsuarioInstituicao(usuarioLogado.equals(anuncio.getUsuarioInstituicao()));
     }
 
     @Override
@@ -147,8 +163,30 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
                 .map(ImagemAnuncio::getId)
                 .filter(Objects::nonNull).toList();
         var imagensDoBanco = anuncioRepository.findById(anuncio.getId())
-                .orElseThrow(() -> new NoSuchElementException("Anuncio não encontrado."))
+                .orElseThrow(() -> new NoSuchElementException("Anúncio não encontrado."))
                 .getImagens();
         return imagensDoBanco.stream().filter(img -> !imagensId.contains(img.getId())).toList();
+    }
+
+    @Override
+    public Anuncio updateStatus(Anuncio anuncio){
+        var anuncioBanco = findById(anuncio.getId());
+        var usuarioLogado = usuarioService.getUsuarioLogado();
+        switch(anuncioBanco.getStatus()) {
+            case DISPONIVEL:
+                anuncioBanco.setStatus(Status.EM_NEGOCIACAO);
+                anuncioBanco.setUsuarioDestino(usuarioLogado);
+                break;
+            case EM_NEGOCIACAO:
+                if (Status.DISPONIVEL.equals(anuncio.getStatus())) {
+                    anuncioBanco.setStatus(Status.DISPONIVEL);
+                    anuncioBanco.setUsuarioDestino(null);
+                } else if (Status.FINALIZADO.equals(anuncio.getStatus()) && usuarioLogado.equals(anuncioBanco.getUsuarioOrigem())) {
+                    anuncioBanco.setStatus(Status.FINALIZADO);
+                }
+        }
+        anuncioBanco = anuncioRepository.save(anuncioBanco);
+        setUsuarioLogadoEh(anuncioBanco, usuarioLogado);
+        return anuncioBanco;
     }
 }

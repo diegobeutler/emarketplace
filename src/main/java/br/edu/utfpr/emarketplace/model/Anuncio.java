@@ -54,6 +54,7 @@ public class Anuncio {
     @Column(name = "VALOR", precision = 12, scale = 2)
     private BigDecimal valor;
 
+    @JsonFormat(pattern = "dd/MM/yyyy")
     @Column(name = "DATA_PUBLICACAO", nullable = false)
     private LocalDate dataPublicacao;
 
@@ -82,5 +83,9 @@ public class Anuncio {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<ImagemAnuncio> imagens;
+
+    private transient boolean ehUsuarioOrigem;
+    private transient boolean ehUsuarioDestino;
+    private transient boolean ehUsuarioInstituicao;
 
 }

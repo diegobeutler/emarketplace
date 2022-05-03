@@ -3,6 +3,7 @@ package br.edu.utfpr.emarketplace.filter;
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.JWTVerifier;
 import com.auth0.jwt.algorithms.Algorithm;
+import com.auth0.jwt.exceptions.TokenExpiredException;
 import com.auth0.jwt.interfaces.DecodedJWT;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lombok.extern.slf4j.Slf4j;
@@ -24,6 +25,7 @@ import java.util.Map;
 import static java.util.Arrays.stream;
 import static org.springframework.http.HttpHeaders.AUTHORIZATION;
 import static org.springframework.http.HttpStatus.FORBIDDEN;
+import static org.springframework.http.HttpStatus.UNAUTHORIZED;
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @Slf4j
@@ -71,6 +73,14 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
                             = new UsernamePasswordAuthenticationToken(username, null, authorities);
                     SecurityContextHolder.getContext().setAuthentication(usernamePasswordAuthenticationToken);
                     filterChain.doFilter(request, response);
+                } catch (TokenExpiredException tokenExpiredException) {
+                    log.error("Error login in {}", tokenExpiredException.getMessage());
+                    response.setHeader("error", tokenExpiredException.getMessage());
+                    response.setStatus(UNAUTHORIZED.value());
+                    Map<String, String> error = new HashMap<>();
+                    error.put("error_message", tokenExpiredException.getMessage());
+                    response.setContentType(APPLICATION_JSON_VALUE);
+                    new ObjectMapper().writeValue(response.getOutputStream(), error);
                 } catch (Exception exception) {
                     log.error("Error login in {}", exception.getMessage());
                     response.setHeader("error", exception.getMessage());

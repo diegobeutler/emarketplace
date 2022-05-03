@@ -2,7 +2,9 @@ package br.edu.utfpr.emarketplace.service.impl;
 
 
 import br.edu.utfpr.emarketplace.enumeration.Permissao;
+import br.edu.utfpr.emarketplace.exception.UsuarioInativoException;
 import br.edu.utfpr.emarketplace.exception.UsuarioJaExisteException;
+import br.edu.utfpr.emarketplace.exception.UsuarioNaoAutenticadoException;
 import br.edu.utfpr.emarketplace.model.Usuario;
 import br.edu.utfpr.emarketplace.repository.PermissaoRepository;
 import br.edu.utfpr.emarketplace.repository.UsuarioRepository;
@@ -10,6 +12,7 @@ import br.edu.utfpr.emarketplace.service.UsuarioService;
 import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
 import br.edu.utfpr.emarketplace.service.email.EnvioEmailServiceImpl;
 import lombok.RequiredArgsConstructor;
+import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -26,10 +29,7 @@ import javax.imageio.ImageIO;
 import java.awt.image.BufferedImage;
 import java.io.ByteArrayInputStream;
 import java.io.File;
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.List;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static br.edu.utfpr.emarketplace.service.utils.ImageUtils.converterDataToByte;
@@ -64,15 +64,16 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
                 throw new UsuarioJaExisteException("Usuario " + entity.getUsername() + " já existe");
     }
 
+    @SneakyThrows
     @Override
-    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String username) {
         Usuario usuario = usuarioRepository.findUsuarioByUsername(username).orElse(null);
         if (usuario == null) {
             log.error("User not found in the database");
             throw new UsernameNotFoundException("User not found in the database");
         } else if (!usuario.getAtivo()) {
             log.error("User inative in the database");
-            throw new UsernameNotFoundException("User inative in the database");
+            throw new UsuarioInativoException("Usuário inativo.");
         }
         log.info("User found in the database {}", username);
         Collection<SimpleGrantedAuthority> authorities = new ArrayList<>();
@@ -134,10 +135,14 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
         }
     }
 
+    @SneakyThrows
     @Override
     public Usuario findById(Long id) {
         var usuario = getUsuarioLogado();
-        if (usuario != null && usuario.getPermissoes().stream()
+        if(Objects.isNull(usuario)){
+            throw new UsuarioNaoAutenticadoException("Usuário não autenticado");
+        }
+        if (usuario.getPermissoes().stream()
                 .anyMatch(permissao -> Permissao.ROLE_ADMIN.name().equals(permissao.getNome())) && !usuario.getId().equals(id)) {
             var usuarioAux = super.findById(id);
             if(!usuarioAux.getAtivo()){
@@ -187,7 +192,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
 
     public List<Usuario> completeByInstituicaoAndNome(String query) {
         return usuarioRepository.findByPermissoesContainingAndNomeContainingIgnoreCaseAndAtivoOrderByNome(
-                Permissao.ROLE_ADMIN.getPermissao(), query, true
+                Permissao.ROLE_INSTITUTION.getPermissao(), query, true
         );
     }
 }
