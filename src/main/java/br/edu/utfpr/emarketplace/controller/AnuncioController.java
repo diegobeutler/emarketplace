@@ -30,8 +30,8 @@ public class AnuncioController {
     }
 
     @GetMapping("{id}")
-    private Anuncio findById(@PathVariable("id") Long id) {
-        return anuncioService.findById(id);
+    private Anuncio findById(@PathVariable("id") Long id) throws Exception {
+        return anuncioService.findAnuncioById(id);
     }
 
     @PostMapping("/filter")

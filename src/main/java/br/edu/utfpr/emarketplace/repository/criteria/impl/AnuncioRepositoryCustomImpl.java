@@ -1,5 +1,6 @@
 package br.edu.utfpr.emarketplace.repository.criteria.impl;
 
+import br.edu.utfpr.emarketplace.enumeration.Operacao;
 import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.model.Anuncio_;
 import br.edu.utfpr.emarketplace.model.Usuario_;
@@ -14,6 +15,9 @@ import javax.persistence.TypedQuery;
 import javax.persistence.criteria.*;
 import java.util.ArrayList;
 import java.util.List;
+
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @Repository
 @RequiredArgsConstructor
@@ -36,47 +40,57 @@ public class AnuncioRepositoryCustomImpl implements AnuncioRepositoryCustom {
 
         List<Predicate> predicates = new ArrayList<>();
 
-        if (filter.getId() != null) {
+        if (nonNull(filter.getId())) {
             predicates.add(criteriaBuilder.equal(anuncio.get("id"), filter.getId()));
         }
-        if (filter.getTitulo() != null) {
+        if (nonNull(filter.getTitulo())) {
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(anuncio.get("titulo")), "%" + filter.getTitulo().toLowerCase() + "%"));
         }
-        if (filter.getDescricao() != null) {
+        if (nonNull(filter.getDescricao())) {
             predicates.add(criteriaBuilder.like(criteriaBuilder.lower(anuncio.get("descricao")), "%" + filter.getDescricao().toLowerCase() + "%"));
         }
-        if (filter.getOperacao() != null) {
+        if (nonNull(filter.getOperacao())) {
             predicates.add(criteriaBuilder.equal(anuncio.get("operacao"), filter.getOperacao()));
         }
-        if (filter.getStatus() != null) {
+        if (nonNull(filter.getStatus())) {
             predicates.add(criteriaBuilder.equal(anuncio.get("status"), filter.getStatus()));
         }
-        if (filter.getAnunciei() && filter.getUsuarioLogado() != null) {
-            predicates.add(criteriaBuilder.equal(anuncio.get("usuarioOrigem"), filter.getUsuarioLogado()));
-        }
-        if (filter.getAdquiri() && filter.getUsuarioLogado() != null) {
-            predicates.add(criteriaBuilder.equal(anuncio.get("usuarioDestino"), filter.getUsuarioLogado()));
-        }
-        if (filter.getDataPublicacaoMin() != null) {
+        if (nonNull(filter.getDataPublicacaoMin())) {
             predicates.add(criteriaBuilder.greaterThanOrEqualTo(anuncio.get("dataPublicacao"), filter.getDataPublicacaoMin()));
         }
-        if (filter.getDataPublicacaoMax() != null) {
+        if (nonNull(filter.getDataPublicacaoMax())) {
             predicates.add(criteriaBuilder.lessThanOrEqualTo(anuncio.get("dataPublicacao"), filter.getDataPublicacaoMax()));
         }
-        if (filter.getCategoria() != null) {
+        if (nonNull(filter.getCategoria())) {
             predicates.add(criteriaBuilder.equal(anuncio.get("categoria"), filter.getCategoria()));
         }
-        if (filter.getEstado() != null && filter.getCidade() == null) {
+        if (nonNull(filter.getEstado()) && isNull(filter.getCidade())) {
             Join<Object, Object> cidadeUsuarioOrigem = usurioOrigem.join(Usuario_.CIDADE, JoinType.LEFT);
             predicates.add(criteriaBuilder.equal(cidadeUsuarioOrigem.get("estado"), filter.getEstado()));
         }
-        if (filter.getCidade() != null) {
+        if (nonNull(filter.getCidade())) {
             predicates.add(criteriaBuilder.equal(usurioOrigem.get("cidade"), filter.getCidade()));
         }
 
-        if (!predicates.isEmpty()) {
-            query.where(predicates.toArray(Predicate[]::new));
+        Predicate operacaoNotEqualDoacaoProduto = criteriaBuilder.notEqual(anuncio.get("operacao"), Operacao.DOACAO_PRODUTO);
+
+        if (nonNull(filter.getUsuarioLogado())) {
+            Predicate usuarioOrigem = criteriaBuilder.equal(anuncio.get("usuarioOrigem"), filter.getUsuarioLogado());
+            Predicate usuarioInstituicao = criteriaBuilder.equal(anuncio.get("usuarioInstituicao"), filter.getUsuarioLogado());
+            if (filter.getAnunciei()) {
+                predicates.add(usuarioOrigem);
+            } else if (filter.getAdquiri()) {
+                Predicate usuarioInstituicaoOrDestino = criteriaBuilder.or(usuarioInstituicao, criteriaBuilder.equal(anuncio.get("usuarioDestino"), filter.getUsuarioLogado()));
+                predicates.add(usuarioInstituicaoOrDestino);
+            }
+            Predicate usuarioOrigemORInstituicao = criteriaBuilder.or(usuarioOrigem, usuarioInstituicao);
+            Predicate operacaoNotEqualDoacaoProdutoOR_UsuarioOrigemORInstituicao = criteriaBuilder.or(operacaoNotEqualDoacaoProduto, usuarioOrigemORInstituicao);
+            predicates.add(operacaoNotEqualDoacaoProdutoOR_UsuarioOrigemORInstituicao);
+        } else {
+            predicates.add(operacaoNotEqualDoacaoProduto);
         }
+
+        query.where(predicates.toArray(Predicate[]::new));
 
         TypedQuery<Anuncio> queryResult = this.entityManager.createQuery(query);
         return queryResult.getResultList();

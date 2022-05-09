@@ -1,6 +1,8 @@
 package br.edu.utfpr.emarketplace.service.impl;
 
+import br.edu.utfpr.emarketplace.enumeration.Operacao;
 import br.edu.utfpr.emarketplace.enumeration.Status;
+import br.edu.utfpr.emarketplace.exception.RecursoNaoPermitidoException;
 import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.model.ImagemAnuncio;
 import br.edu.utfpr.emarketplace.model.Usuario;
@@ -79,7 +81,13 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     @Override
     public void excluir(Long id) {
-        delete(id);
+        try {
+            imagensParaExcluir = findAnuncioById(id).getImagens();
+            delete(id);
+            deleteOldImages();
+        } catch (RecursoNaoPermitidoException e) {
+            e.printStackTrace();
+        }
     }
 
     @Override
@@ -90,9 +98,8 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     @Override
     public List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter) {
         var usuarioLogado = usuarioService.getUsuarioLogado();
-        if (anuncioFilter.getAnunciei()|| anuncioFilter.getAdquiri()){
-            anuncioFilter.setUsuarioLogado(usuarioLogado);
-        }
+        anuncioFilter.setUsuarioLogado(usuarioLogado);
+
         var anuncios = anuncioRepository.findAnunciosByFilter(anuncioFilter);
         setUsuarioLogadoEh(anuncios, usuarioLogado);
         return anuncios;
@@ -169,13 +176,15 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
-    public Anuncio updateStatus(Anuncio anuncio){
+    public Anuncio updateStatus(Anuncio anuncio) {
         var anuncioBanco = findById(anuncio.getId());
         var usuarioLogado = usuarioService.getUsuarioLogado();
-        switch(anuncioBanco.getStatus()) {
+        switch (anuncioBanco.getStatus()) {
             case DISPONIVEL:
                 anuncioBanco.setStatus(Status.EM_NEGOCIACAO);
-                anuncioBanco.setUsuarioDestino(usuarioLogado);
+                if (!Operacao.DOACAO_PRODUTO.equals(anuncioBanco.getOperacao())) {
+                    anuncioBanco.setUsuarioDestino(usuarioLogado);
+                }
                 break;
             case EM_NEGOCIACAO:
                 if (Status.DISPONIVEL.equals(anuncio.getStatus())) {
@@ -188,5 +197,13 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
         anuncioBanco = anuncioRepository.save(anuncioBanco);
         setUsuarioLogadoEh(anuncioBanco, usuarioLogado);
         return anuncioBanco;
+    }
+
+    public Anuncio findAnuncioById(Long id) throws RecursoNaoPermitidoException {
+        var anuncio = findById(id);
+        if (anuncio.getUsuarioOrigem().equals(usuarioService.getUsuarioLogado())) {
+            return anuncio;
+        }
+        throw new RecursoNaoPermitidoException("Usuário autenticado não é o proprietário do anúncio.");
     }
 }

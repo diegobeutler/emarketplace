@@ -1,5 +1,6 @@
 package br.edu.utfpr.emarketplace.service;
 
+import br.edu.utfpr.emarketplace.exception.RecursoNaoPermitidoException;
 import br.edu.utfpr.emarketplace.model.Anuncio;
 import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 
@@ -17,4 +18,6 @@ public interface AnuncioService extends CrudService<Anuncio, Long> {
     void convidarInstituicao(String emailInstituicao);
 
     Anuncio updateStatus(Anuncio anuncio);
+
+    Anuncio findAnuncioById(Long id) throws RecursoNaoPermitidoException;
 }
