@@ -9,7 +9,7 @@ import org.springframework.stereotype.Service;
 import java.util.Set;
 
 @Service
-public class EnvioEmailServiceImpl {
+public class EnvioEmailService {
 
     @Value("${spring.mail.username}")
     private String from;
@@ -30,7 +30,7 @@ public class EnvioEmailServiceImpl {
     }
 
     public void convidarInstituicaoEmail(String toEmail) {
-        String message = "Olá,\nGostaria de informar que um usuário do E-marketplce, não lhe encontrou na lista de instiuições disponíveis para doação de produtos." +
+        String message = "Olá,\nGostaria de informar que um usuário do E-marketplce, não lhe encontrou na lista de instituições disponíveis para doação de produtos/valores." +
                 "\nPara que possa receber doações por meio do sistema, deve efetuar o seu cadastro, acessando o endereço: http://localhost:4200/usuario/form";
         mailSender.send(constructEmail("Venha fazer parte do E-marketplace!", message, toEmail));
     }

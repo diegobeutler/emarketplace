@@ -2,7 +2,7 @@ package br.edu.utfpr.emarketplace.service;
 
 import br.edu.utfpr.emarketplace.model.PasswordResetToken;
 import br.edu.utfpr.emarketplace.model.Usuario;
-import br.edu.utfpr.emarketplace.resetPassword.dto.PasswordDto;
+import br.edu.utfpr.emarketplace.model.dto.PasswordDto;
 
 public interface PasswordResetTokenService extends CrudService<PasswordResetToken, Long> {
     Usuario getUserByPasswordResetToken(String token);

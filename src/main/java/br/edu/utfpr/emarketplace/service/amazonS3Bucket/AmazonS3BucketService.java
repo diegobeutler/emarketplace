@@ -16,7 +16,7 @@ import javax.annotation.PostConstruct;
 import java.io.File;
 
 @Service
-public class AmazonS3BucketServiceImpl {
+public class AmazonS3BucketService {
 
     private AmazonS3 amazonS3;
 

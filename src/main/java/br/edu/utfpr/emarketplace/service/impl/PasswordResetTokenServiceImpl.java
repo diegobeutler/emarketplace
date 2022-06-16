@@ -3,12 +3,12 @@ package br.edu.utfpr.emarketplace.service.impl;
 import br.edu.utfpr.emarketplace.exception.InvalidTokenException;
 import br.edu.utfpr.emarketplace.model.PasswordResetToken;
 import br.edu.utfpr.emarketplace.model.Usuario;
+import br.edu.utfpr.emarketplace.model.dto.PasswordDto;
 import br.edu.utfpr.emarketplace.repository.PasswordResetTokenRepository;
 import br.edu.utfpr.emarketplace.repository.UsuarioRepository;
-import br.edu.utfpr.emarketplace.resetPassword.dto.PasswordDto;
 import br.edu.utfpr.emarketplace.service.PasswordResetTokenService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
-import br.edu.utfpr.emarketplace.service.email.EnvioEmailServiceImpl;
+import br.edu.utfpr.emarketplace.service.email.EnvioEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
@@ -27,7 +27,7 @@ public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordReset
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
-    private final EnvioEmailServiceImpl envioEmailServiceImpl;
+    private final EnvioEmailService envioEmailService;
 
     @Override
     public Usuario getUserByPasswordResetToken(String token) {
@@ -67,7 +67,7 @@ public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordReset
         }
         String token = UUID.randomUUID().toString();
         createPasswordResetTokenForUser(usuario.get(), token);
-        envioEmailServiceImpl.resetTokenEmail("http://localhost:4200/usuario", token, usuario.get().getEmail());
+        envioEmailService.resetTokenEmail("http://localhost:4200/usuario", token, usuario.get().getEmail());
     }
 
     @Override

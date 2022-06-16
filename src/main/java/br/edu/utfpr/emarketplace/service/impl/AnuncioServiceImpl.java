@@ -12,8 +12,8 @@ import br.edu.utfpr.emarketplace.repository.ImagemAnuncioRepository;
 import br.edu.utfpr.emarketplace.repository.criteria.params.AnuncioFilter;
 import br.edu.utfpr.emarketplace.service.AnuncioService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
-import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
-import br.edu.utfpr.emarketplace.service.email.EnvioEmailServiceImpl;
+import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketService;
+import br.edu.utfpr.emarketplace.service.email.EnvioEmailService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Service;
@@ -26,13 +26,12 @@ import java.io.ByteArrayInputStream;
 import java.io.File;
 import java.io.IOException;
 import java.time.LocalDate;
-import java.util.List;
-import java.util.NoSuchElementException;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static br.edu.utfpr.emarketplace.service.utils.ListUtils.isNullOrEmpty;
+import static java.util.Objects.isNull;
+import static java.util.Objects.nonNull;
 
 @RequiredArgsConstructor
 @Service
@@ -40,8 +39,8 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
 
     private final AnuncioRepository anuncioRepository;
     private final UsuarioService usuarioService;
-    private final EnvioEmailServiceImpl envioEmailService;
-    private final AmazonS3BucketServiceImpl amazonS3BucketService;
+    private final EnvioEmailService envioEmailService;
+    private final AmazonS3BucketService amazonS3BucketService;
     private final ImagemAnuncioRepository imagemAnuncioRepository;
     private List<ImagemAnuncio> imagensParaExcluir;
     private List<ImagemAnuncioSalvarDto> imagensDataParaSalvar;
@@ -52,23 +51,17 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
-    public void valid(Anuncio entity) {
-
-    }
-
-    @Override
     public void preSave(Anuncio anuncio) {
         updateImagesAws(anuncio);
     }
 
     @Override
     public Anuncio salvar(Anuncio anuncio) throws Exception {
-        if (anuncio.getId() == null) {
+        if (isNull(anuncio.getId())) {
             anuncio.setDataPublicacao(LocalDate.now());
             anuncio.setStatus(Status.DISPONIVEL);
             anuncio.setUsuarioOrigem(usuarioService.getUsuarioLogado());
         }
-
         return save(anuncio);
     }
 
@@ -82,8 +75,12 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     @Override
     public void excluir(Long id) {
         try {
-            imagensParaExcluir = findAnuncioById(id).getImagens();
-            delete(id);
+            var anuncio = findAnuncioById(id);
+            anuncio.setUsuarioDestino(null);
+            anuncio.setUsuarioOrigem(null);
+            anuncio.setUsuarioInstituicao(null);
+            imagensParaExcluir = anuncio.getImagens();
+            delete(anuncio);
             deleteOldImages();
         } catch (RecursoNaoPermitidoException e) {
             e.printStackTrace();
@@ -91,22 +88,18 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
     }
 
     @Override
-    public List<Anuncio> listarTodos() {
-        return null;
-    }
-
-    @Override
     public List<Anuncio> findAnunciosByFilter(AnuncioFilter anuncioFilter) {
-        var usuarioLogado = usuarioService.getUsuarioLogado();
-        anuncioFilter.setUsuarioLogado(usuarioLogado);
-
+        anuncioFilter.setUsuarioLogado(usuarioService.getUsuarioLogado());
         var anuncios = anuncioRepository.findAnunciosByFilter(anuncioFilter);
-        setUsuarioLogadoEh(anuncios, usuarioLogado);
+        setUsuarioLogadoEh(anuncios, anuncioFilter.getUsuarioLogado());
         return anuncios;
     }
 
     private void setUsuarioLogadoEh(List<Anuncio> anuncios, Usuario usuarioLogado) {
-        if (Objects.nonNull(usuarioLogado)) {
+        Optional.ofNullable(usuarioLogado)
+                .ifPresent(usuario ->
+                        anuncios.forEach(e -> setUsuarioLogadoEh(e, usuarioLogado)));
+        if (nonNull(usuarioLogado)) {
             anuncios.forEach(e -> setUsuarioLogadoEh(e, usuarioLogado));
         }
     }

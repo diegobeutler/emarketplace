@@ -2,9 +2,7 @@ package br.edu.utfpr.emarketplace.controller;
 
 
 import br.edu.utfpr.emarketplace.model.Categoria;
-import br.edu.utfpr.emarketplace.model.Estado;
 import br.edu.utfpr.emarketplace.service.CategoriaService;
-import br.edu.utfpr.emarketplace.service.EstadoService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestMapping;

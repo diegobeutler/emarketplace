@@ -5,6 +5,7 @@ import lombok.AllArgsConstructor;
 
 @AllArgsConstructor
 public enum Status {
+
     DISPONIVEL("Disponível"),
     EM_NEGOCIACAO("Em Negociação"),
     FINALIZADO("Finalizado");
@@ -15,5 +16,4 @@ public enum Status {
     public String getValue() {
         return value;
     }
-
 }

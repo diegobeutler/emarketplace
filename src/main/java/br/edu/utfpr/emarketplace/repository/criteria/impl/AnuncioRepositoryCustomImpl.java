@@ -23,13 +23,8 @@ import static java.util.Objects.nonNull;
 @RequiredArgsConstructor
 public class AnuncioRepositoryCustomImpl implements AnuncioRepositoryCustom {
 
-
     @PersistenceContext
-    private EntityManager entityManager;
-
-    public AnuncioRepositoryCustomImpl(EntityManager entityManager) {
-        this.entityManager = entityManager;
-    }
+    private final EntityManager entityManager;
 
     public List<Anuncio> findAnunciosByFilter(AnuncioFilter filter) {
         CriteriaBuilder criteriaBuilder = this.entityManager.getCriteriaBuilder();
@@ -67,8 +62,7 @@ public class AnuncioRepositoryCustomImpl implements AnuncioRepositoryCustom {
         if (nonNull(filter.getEstado()) && isNull(filter.getCidade())) {
             Join<Object, Object> cidadeUsuarioOrigem = usurioOrigem.join(Usuario_.CIDADE, JoinType.LEFT);
             predicates.add(criteriaBuilder.equal(cidadeUsuarioOrigem.get("estado"), filter.getEstado()));
-        }
-        if (nonNull(filter.getCidade())) {
+        } else if (nonNull(filter.getCidade())) {
             predicates.add(criteriaBuilder.equal(usurioOrigem.get("cidade"), filter.getCidade()));
         }
 

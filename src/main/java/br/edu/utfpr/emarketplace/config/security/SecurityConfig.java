@@ -1,7 +1,7 @@
 package br.edu.utfpr.emarketplace.config.security;
 
-import br.edu.utfpr.emarketplace.filter.CustomAuthenticationFilter;
-import br.edu.utfpr.emarketplace.filter.CustomAuthorizationFilter;
+import br.edu.utfpr.emarketplace.config.security.filter.CustomAuthenticationFilter;
+import br.edu.utfpr.emarketplace.config.security.filter.CustomAuthorizationFilter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -41,11 +41,13 @@ public class SecurityConfig extends WebSecurityConfigurerAdapter {
                 .antMatchers(HttpMethod.PUT, "/categoria/**").hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers(HttpMethod.DELETE, "/categoria/**").hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers(HttpMethod.GET, "/categoria/**").permitAll()
-                .antMatchers( "/anuncio/**").permitAll()
+                .antMatchers( HttpMethod.GET, "/anuncio/**").permitAll()
+                .antMatchers(HttpMethod.POST, "/usuario/validate").hasAnyAuthority("ROLE_ADMIN")
                 .antMatchers("/usuario/**").permitAll()
+                .antMatchers("/estado/**").permitAll()
+                .antMatchers("/cidade/**").permitAll()
                 .antMatchers("/login").permitAll()
-                .anyRequest().permitAll();
-//        .anyRequest().authenticated();
+                .anyRequest().permitAll();//authenticated
         http.addFilter(customAuthenticationFilter);
         http.addFilterBefore(new CustomAuthorizationFilter(), UsernamePasswordAuthenticationFilter.class);
     }

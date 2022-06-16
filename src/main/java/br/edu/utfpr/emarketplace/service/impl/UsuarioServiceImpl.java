@@ -9,8 +9,8 @@ import br.edu.utfpr.emarketplace.model.Usuario;
 import br.edu.utfpr.emarketplace.repository.PermissaoRepository;
 import br.edu.utfpr.emarketplace.repository.UsuarioRepository;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
-import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketServiceImpl;
-import br.edu.utfpr.emarketplace.service.email.EnvioEmailServiceImpl;
+import br.edu.utfpr.emarketplace.service.amazonS3Bucket.AmazonS3BucketService;
+import br.edu.utfpr.emarketplace.service.email.EnvioEmailService;
 import lombok.RequiredArgsConstructor;
 import lombok.SneakyThrows;
 import lombok.extern.slf4j.Slf4j;
@@ -33,6 +33,7 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 import static br.edu.utfpr.emarketplace.service.utils.ImageUtils.converterDataToByte;
+import static java.util.Optional.ofNullable;
 
 @Service
 @RequiredArgsConstructor
@@ -45,9 +46,9 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
 
     private final PermissaoRepository permissaoRepository;
 
-    private final AmazonS3BucketServiceImpl amazonS3BucketService;
+    private final AmazonS3BucketService amazonS3BucketService;
 
-    private final EnvioEmailServiceImpl envioEmailServiceImpl;
+    private final EnvioEmailService envioEmailService;
 
     private byte[] imagedata;
 
@@ -61,7 +62,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
     public void valid(Usuario entity) throws UsuarioJaExisteException {
         if (entity.getId() == null)
             if (usuarioRepository.findUsuarioByUsername(entity.getUsername()).isPresent())
-                throw new UsuarioJaExisteException("Usuario " + entity.getUsername() + " já existe");
+                throw new UsuarioJaExisteException("Usuário " + entity.getUsername() + " já existe");
     }
 
     @SneakyThrows
@@ -131,7 +132,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
         usuarioRepository.updateAtivo(id);
         var instituicao = findById(id);
         if (instituicao != null) {
-            this.envioEmailServiceImpl.notificarInstituicaoEmail(instituicao.getEmail());
+            this.envioEmailService.notificarInstituicaoEmail(instituicao.getEmail());
         }
     }
 
@@ -144,10 +145,12 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
         }
         if (usuario.getPermissoes().stream()
                 .anyMatch(permissao -> Permissao.ROLE_ADMIN.name().equals(permissao.getNome())) && !usuario.getId().equals(id)) {
-            var usuarioAux = super.findById(id);
-            if(!usuarioAux.getAtivo()){
-                usuario = usuarioAux;
-                usuario.setVadationInstitution(true);
+            var usuarioAux = ofNullable(super.findById(id));
+            if(usuarioAux.isPresent()){
+                if(!usuarioAux.get().getAtivo()){
+                    usuario = usuarioAux.get();
+                    usuario.setVadationInstitution(true);
+                }
             }
         }
         return usuario;
@@ -171,7 +174,7 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
                 var emails = usersAdmin.get().stream()
                         .map(Usuario::getEmail)
                         .collect(Collectors.toSet());
-                envioEmailServiceImpl.validateInstituicaoEmail("http://localhost:4200/usuario/form?id=" + usuario.getId(), emails);
+                envioEmailService.validateInstituicaoEmail("http://localhost:4200/usuario/form?id=" + usuario.getId(), emails);
             }
         }
     }

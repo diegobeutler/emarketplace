@@ -1,7 +1,6 @@
 package br.edu.utfpr.emarketplace.service.impl;
 
 import br.edu.utfpr.emarketplace.service.CrudService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Sort;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.transaction.annotation.Propagation;
@@ -10,7 +9,6 @@ import org.springframework.transaction.annotation.Transactional;
 import java.io.Serializable;
 import java.util.List;
 
-@RequiredArgsConstructor
 public abstract class CrudServiceImpl<T, ID extends Serializable> implements CrudService<T, ID> {
 
     public abstract JpaRepository<T, ID> getRepository();
@@ -69,6 +67,12 @@ public abstract class CrudServiceImpl<T, ID extends Serializable> implements Cru
     @Transactional
     public void delete(ID id) {
         getRepository().deleteById(id);
+    }
+
+    @Override
+    @Transactional
+    public void delete(T entity) {
+        getRepository().delete(entity);
     }
 
     @Override

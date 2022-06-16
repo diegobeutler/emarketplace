@@ -24,11 +24,6 @@ public class AnuncioController {
         anuncioService.excluir(id);
     }
 
-    @GetMapping("pesquisar-todos")
-    private List<Anuncio> pesquisarTodos() {
-        return anuncioService.listarTodos();
-    }
-
     @GetMapping("{id}")
     private Anuncio findById(@PathVariable("id") Long id) throws Exception {
         return anuncioService.findAnuncioById(id);

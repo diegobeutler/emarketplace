@@ -2,7 +2,7 @@ package br.edu.utfpr.emarketplace.controller;
 
 
 import br.edu.utfpr.emarketplace.model.Usuario;
-import br.edu.utfpr.emarketplace.resetPassword.dto.PasswordDto;
+import br.edu.utfpr.emarketplace.model.dto.PasswordDto;
 import br.edu.utfpr.emarketplace.service.PasswordResetTokenService;
 import br.edu.utfpr.emarketplace.service.UsuarioService;
 import lombok.RequiredArgsConstructor;

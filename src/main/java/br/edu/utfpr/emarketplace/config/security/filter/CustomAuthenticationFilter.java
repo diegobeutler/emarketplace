@@ -1,4 +1,4 @@
-package br.edu.utfpr.emarketplace.filter;
+package br.edu.utfpr.emarketplace.config.security.filter;
 
 import com.auth0.jwt.JWT;
 import com.auth0.jwt.algorithms.Algorithm;
