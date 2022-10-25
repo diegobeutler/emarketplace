@@ -21,7 +21,7 @@ import static java.time.LocalDate.now;
 
 @Service
 @RequiredArgsConstructor
-public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordResetToken, Long> implements PasswordResetTokenService {// todo ver se precisa estender crud service
+public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordResetToken, Long> implements PasswordResetTokenService {
 
 
     private final PasswordResetTokenRepository passwordResetTokenRepository;

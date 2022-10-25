@@ -99,9 +99,6 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
         Optional.ofNullable(usuarioLogado)
                 .ifPresent(usuario ->
                         anuncios.forEach(e -> setUsuarioLogadoEh(e, usuarioLogado)));
-        if (nonNull(usuarioLogado)) {
-            anuncios.forEach(e -> setUsuarioLogadoEh(e, usuarioLogado));
-        }
     }
 
     private void setUsuarioLogadoEh(Anuncio anuncio, Usuario usuarioLogado) {
@@ -122,7 +119,7 @@ public class AnuncioServiceImpl extends CrudServiceImpl<Anuncio, Long> implement
             imagensParaExcluir = getImagesDeleted(anuncio);
         }
         imagensDataParaSalvar = getImagensDataParaSalvar(anuncio.getImagens());
-        anuncio.getImagens().removeAll(anuncio.getImagens().stream()// todo serve para remover as imagens em base 64, pois já foram salvas e o caminho está na lista
+        anuncio.getImagens().removeAll(anuncio.getImagens().stream()
                 .filter(imagemAnuncio -> imagemAnuncio.getUrl().startsWith("data")).toList());
     }
 

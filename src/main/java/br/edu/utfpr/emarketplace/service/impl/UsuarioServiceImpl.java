@@ -188,7 +188,6 @@ public class UsuarioServiceImpl extends CrudServiceImpl<Usuario, Long> implement
                 usuarioRepository.updateImagem(usuario.getId(), amazonS3BucketService.uploadFile(file, true));
             } catch (Exception ex) {
                 log.error("Erro salvando imagem do usuário: " + ex.getMessage());
-                // todo adicionar exceção personalizada com mensagem....
             }
         }
     }

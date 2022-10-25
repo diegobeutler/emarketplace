@@ -36,28 +36,6 @@ public class CustomAuthorizationFilter extends OncePerRequestFilter {
         if (request.getServletPath().equals("/login")) {
             filterChain.doFilter(request, response);
         } else {
-// todo fazer o refrash token
-
-//            if(request.getServletPath().equals("/refresh-token")) {
-//                User user = (User) usuarioServiceImpl.loadUserByUsername(usuarioServiceImpl.getUsuarioLogado().getUsername());
-//                Algorithm algorithm = Algorithm.HMAC256("secret".getBytes());
-//                String access_token = JWT.create()
-//                        .withSubject(user.getUsername())
-//                        .withExpiresAt(new Date(System.currentTimeMillis() + 10 * 60 * 1000))
-//                        .withIssuer(request.getRequestURI().toString())
-//                        .withClaim("roles", user.getAuthorities().stream().map(GrantedAuthority::getAuthority).collect(Collectors.toList()))
-//                        .sign(algorithm);
-//                String refresh_token = JWT.create()
-//                        .withSubject(user.getUsername())
-//                        .withExpiresAt(new Date(System.currentTimeMillis() + 30 * 60 * 1000))
-//                        .withIssuer(request.getRequestURI().toString())
-//                        .sign(algorithm);
-//                Map<String, String> tokens = new HashMap<>();
-//                tokens.put("access_token", access_token);
-//                tokens.put("refresh_token", refresh_token);
-//                response.setContentType(APPLICATION_JSON_VALUE);
-//                new ObjectMapper().writeValue(response.getOutputStream(), tokens);
-//            }
             String authorizationHeader = request.getHeader(AUTHORIZATION);
             if (authorizationHeader != null && authorizationHeader.startsWith("Bearer ")) {
                 try {

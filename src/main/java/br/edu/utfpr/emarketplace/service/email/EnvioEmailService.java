@@ -30,7 +30,7 @@ public class EnvioEmailService {
     }
 
     public void convidarInstituicaoEmail(String toEmail) {
-        String message = "Olá,\nGostaria de informar que um usuário do E-marketplce, não lhe encontrou na lista de instituições disponíveis para doação de produtos/valores." +
+        String message = "Olá,\nGostaria de informar que um usuário do E-marketplace, não lhe encontrou na lista de instituições disponíveis para doação de produtos/valores." +
                 "\nPara que possa receber doações por meio do sistema, deve efetuar o seu cadastro, acessando o endereço: http://localhost:4200/usuario/form";
         mailSender.send(constructEmail("Venha fazer parte do E-marketplace!", message, toEmail));
     }
@@ -39,7 +39,7 @@ public class EnvioEmailService {
         String message = "Olá,\nSeu cadastro foi validado por um de nossos administradores." +
                 "\nAcesse: http://localhost:4200/login" +
                 "\nNessa tela basta entrar com seu login e senha. Caso tenha esquecido, pode acessar a opção de redefinir senha para a alteração.";
-        mailSender.send(constructEmail("Bem vinda ao E-marketplce!", message, toEmail));
+        mailSender.send(constructEmail("Bem vinda ao E-marketplace!", message, toEmail));
     }
 
     private SimpleMailMessage constructEmail(String subject, String body,
