@@ -23,7 +23,6 @@ import static java.time.LocalDate.now;
 @RequiredArgsConstructor
 public class PasswordResetTokenServiceImpl extends CrudServiceImpl<PasswordResetToken, Long> implements PasswordResetTokenService {
 
-
     private final PasswordResetTokenRepository passwordResetTokenRepository;
     private final UsuarioRepository usuarioRepository;
     private final UsuarioService usuarioService;
